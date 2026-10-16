@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIM施工级砌筑排砖与算量系统 (全屋余料跨墙调配终版)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f1f5f9; color: #1e293b; padding: 14px; line-height: 1.45; margin: 0; }
+        .container { max-width: 1440px; margin: 0 auto; background: #fff; padding: 18px 22px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+        .header-bar h1 { font-size: 19px; margin: 0; color: #0f172a; }
+        .project-input-wrap { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #475569; flex-wrap: wrap; }
+        .project-input-wrap input[type="text"] { padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 220px; font-size: 13px; font-weight: 500; }
+        
+        .opt-toggle-box { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; border: 1.5px solid #3b82f6; color: #1d4ed8; padding: 5px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; user-select: none; }
+        .opt-toggle-box input { width: 16px; height: 16px; cursor: pointer; accent-color: #2563eb; margin: 0; }
+
+        .rule-banner { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 7px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        
+        .input-table, .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
+        .input-table th, .input-table td, .detail-table th, .detail-table td { padding: 6px 4px; text-align: center; border: 1px solid #cbd5e1; }
+        .input-table th, .detail-table th { background: #f8fafc; font-weight: 600; color: #334155; }
+        .input-table input[type="number"], .input-table input[type="text"], .input-table select { width: 92%; padding: 4px 2px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; text-align: center; font-size: 12px; background: #fff; }
+        .input-table input[type="text"], .input-table select { font-family: inherit; font-weight: 500; }
+        .group-wall { background: #f8fafc; }
+        .group-bound { background: #f0fdf4; }
+        .group-hole { background: #fffbeb; }
+        
+        .btn { padding: 6px 11px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+        .btn-add { background: #e0f2fe; color: #0369a1; }
+        .btn-reset { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .btn-draw { background: #2563eb; color: #fff; padding: 5px 9px; }
+        .btn-del { background: #fee2e2; color: #dc2626; padding: 5px 8px; }
+        
+        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+        .btn-calc-global { background: #059669; color: #fff; font-size: 14.5px; padding: 11px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; }
+        .btn-batch-print { background: #4f46e5; color: #fff; font-size: 14.5px; padding: 11px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; }
+        .btn-print { background: #4f46e5; color: #fff; padding: 7px 14px; font-weight: 600; }
+        
+        .global-results { margin-top: 18px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+        .summary-card { background: #fff; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+        .summary-card::before { content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%; }
+        .card-red::before { background: #e11d48; }
+        .card-light::before { background: #0284c7; }
+        .card-rebar::before { background: #16a34a; }
+        .card-mortar::before { background: #059669; }
+        .card-plaster::before { background: #7c3aed; }
+        .summary-title { font-size: 13px; color: #475569; font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .summary-value { font-size: 25px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+        .summary-unit { font-size: 13px; color: #64748b; font-weight: normal; }
+        .opt-box { background: #f8fafc; padding: 7px 9px; border-radius: 6px; font-size: 11.5px; color: #334155; border: 1px dashed #cbd5e1; line-height: 1.55; }
+
+        .reuse-plan-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 12.5px; }
+        .reuse-plan-box h3 { margin: 0 0 8px 0; font-size: 14px; color: #1e3a8a; display: flex; justify-content: space-between; }
+        .reuse-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 16px; max-height: 180px; overflow-y: auto; }
+        .reuse-item { background: #fff; border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #1e293b; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.78); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 14px 20px; border-radius: 12px; width: 97%; max-width: 1400px; max-height: 95vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 8px; }
+        .modal-close { font-size: 26px; cursor: pointer; color: #64748b; line-height: 1; margin-left: 12px; }
+        .local-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; }
+        .local-stat-item .val { font-size: 15px; font-weight: bold; margin-top: 2px; }
+        .legend-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; font-size: 11px; margin-bottom: 8px; background: #fff; padding: 5px 8px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .c-box { width: 13px; height: 11px; border: 1px solid #333; display: inline-block; }
+        .canvas-container { overflow: auto; background: #cbd5e1; border: 1px solid #94a3b8; padding: 8px; border-radius: 8px; display: flex; justify-content: center; }
+        canvas { background: #fff; width: 100%; max-width: 1360px; height: auto; display: block; }
+        .cut-schedule-box { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .cut-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 11.5px; }
+        .cut-card h4 { margin: 0 0 5px 0; font-size: 12.5px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+        .cut-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .cut-tag { background: #fff; border: 1px solid #94a3b8; border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; }
+        .cut-tag b { color: #dc2626; }
+
+        #printHandoverArea, #printBatchArea { display: none; }
+        @media print {
+            @page { size: A4 landscape; margin: 7mm 8mm; }
+            body { background: #fff; padding: 0; margin: 0; }
+            .container, .modal-overlay { display: none !important; }
+            body.print-mode-single #printHandoverArea { display: block !important; width: 100%; font-family: "SimSun", "Microsoft YaHei", sans-serif; color: #000; }
+            body.print-mode-batch #printBatchArea { display: block !important; width: 100%; font-family: "SimSun", "Microsoft YaHei", sans-serif; color: #000; }
+            .print-page { width: 100%; box-sizing: border-box; page-break-after: always; break-after: page; }
+            .print-page:last-child { page-break-after: auto; break-after: auto; }
+            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 5px; }
+            .print-header h2 { margin: 0; font-size: 17.5px; }
+            .print-meta { display: flex; justify-content: space-between; font-size: 10.5px; margin-top: 3px; font-weight: bold; }
+            .print-body { display: grid; grid-template-columns: 64% 34.5%; gap: 1.5%; align-items: start; }
+            .print-img-box { border: 1px solid #000; padding: 4px; text-align: center; background: #fff; }
+            .print-img-box img { max-width: 100%; max-height: 148mm; object-fit: contain; }
+            .print-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 5px; }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 3px 4px; text-align: left; }
+            .print-table th { background: #eaeaea !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-align: center; }
+            .print-table td.center { text-align: center; }
+            .print-notes { border: 1px solid #000; padding: 5px 7px; font-size: 10px; line-height: 1.42; margin-bottom: 5px; }
+            .print-sign { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: bold; margin-top: 6px; padding-top: 5px; border-top: 1px dashed #000; }
+            .overview-kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 5px; }
+            .overview-kpi { border: 1.5px solid #000; padding: 4px 5px; text-align: center; background: #f8f8f8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .overview-kpi .k-title { font-size: 10px; font-weight: bold; }
+            .overview-kpi .k-val { font-size: 15px; font-weight: 900; margin: 1px 0; }
+            .overview-kpi .k-sub { font-size: 9px; color: #333; }
+            .overview-spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; border: 1px solid #000; padding: 5px 7px; font-size: 9.5px; line-height: 1.38; margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-bar">
+        <h1>🧱 BIM施工级砌筑排砖与算量系统 <small style="font-size:12px;color:#0284c7;font-weight:normal;">(≤600短墙整砖直铺 / 底部红砖上满400嵌固定墩 / 全屋跨墙余料调配)</small></h1>
+        <div class="project-input-wrap">
+            <label class="opt-toggle-box" title="开启后自动将A墙切剩的余料调配至B墙使用，并在交底单输出跨墙调配明细">
+                <input type="checkbox" id="enableGlobalReuse" checked onchange="onUserChange()">
+                <span>🔗 开启全屋墙体整体统筹排砖 (跨墙余料互用交底)</span>
+            </label>
+            <label for="projectName">工程名称：</label>
+            <input type="text" id="projectName" value="二次结构砌筑深化工程" oninput="onUserChange()">
+            <button class="btn btn-reset" onclick="resetToDefault()">↺ 恢复默认示例</button>
+        </div>
+    </div>
+
+    <div class="rule-banner">
+        <span>✅ <b>核心规则：</b>1. 净长 <b>≤600mm</b> 的短墙/门垛直接单块轻质砖通铺，不做无意义的二次切缝；2. 自由端/门边从底部红砖往上<b>满400mm（2皮轻质砖）后</b>才第一次嵌红砖固定墩；3. 开启全屋整体排砖后自动输出跨墙碎砖去向表。</span>
+        <span id="calcStatusBadge" style="font-weight:bold; color:#059669;">💾 数据已自动保存并实时核算</span>
+    </div>
+    
+    <table class="input-table" id="wallTable">
+        <thead>
+            <tr>
+                <th rowspan="2" width="4%">编号</th>
+                <th rowspan="2" width="10%">墙段部位名称</th>
+                <th colspan="3" class="group-wall">最终完成面尺寸 (mm)</th>
+                <th colspan="2" class="group-bound">左右交接属性 <small style="font-weight:normal;color:#15803d;">(旧墙10~25灰缝+植筋 / 自由端10~25抹灰+隔400红砖)</small></th>
+                <th colspan="4" class="group-hole">门窗洞口完成面定位与尺寸 (mm，无洞填0)</th>
+                <th rowspan="2" width="12%">单墙排砖 / 操作</th>
+            </tr>
+            <tr>
+                <th class="group-wall" width="7%">完成长 L</th>
+                <th class="group-wall" width="7%">完成高 H</th>
+                <th class="group-wall" width="7%">完成厚 T</th>
+                <th class="group-bound" width="12.5%">左端交接方式</th>
+                <th class="group-bound" width="12.5%">右端交接方式</th>
+                <th class="group-hole" width="6.5%">距左 X</th>
+                <th class="group-hole" width="6.5%">离地 Y</th>
+                <th class="group-hole" width="6.5%">洞宽 W</th>
+                <th class="group-hole" width="6.5%">洞高 H_o</th>
+            </tr>
+        </thead>
+        <tbody id="wallBody" oninput="onUserChange()" onchange="onUserChange()"></tbody>
+    </table>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <button class="btn btn-add" onclick="addRow()">+ 添加新墙段 (自动保存)</button>
+        <span style="font-size:12px; color:#64748b;">💡 提示：右侧紫色按钮可一键生成【第1页：总览+跨墙碎砖调配表+交底细则+签字】+【后续各页：单墙排砖图】</span>
+    </div>
+
+    <div class="action-row">
+        <button class="btn-calc-global" onclick="calculateGlobal(true)">🚀 重新核算各段明细与全屋统筹采购量</button>
+        <button class="btn-batch-print" onclick="printAllWallsBooklet()">🖨️ 一键打印 / 导出全套工程交底册 (总览页 + 跨墙余料调配单 + 全墙段排砖图)</button>
+    </div>
+
+    <div class="global-results" id="globalResults">
+        <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 8px;">📋 各墙段材料明细与 10~25mm 灰缝/抹灰调节方案表</h2>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>部位名称</th>
+                    <th>最终完成面尺寸<br>(长L×高H×厚T mm)</th>
+                    <th>长度方向调节方案<br>(旧墙灰缝/自由端抹灰 10~25mm)</th>
+                    <th>墙厚与顶皮调节方案<br>(双面抹灰 10~25mm / 斜砌 180~200)</th>
+                    <th>单墙红砖<br>(含5%损)</th>
+                    <th>单墙轻砖<br>(含5%损)</th>
+                    <th>植筋拉结筋<br>(Φ6钢筋)</th>
+                    <th>砌筑 / 抹灰砂浆<br>(含5%损, m³)</th>
+                </tr>
+            </thead>
+            <tbody id="detailBody"></tbody>
+        </table>
+
+        <!-- 全屋跨墙碎砖余料调配方案展示框 -->
+        <div class="reuse-plan-box" id="reusePlanBox">
+            <h3>
+                <span>🔗 全屋整体统筹排砖 — 跨墙段碎砖余料互用调配交底清单</span>
+                <span id="reuseSummaryTag" style="color:#059669;">-</span>
+            </h3>
+            <div class="reuse-list" id="reusePlanList"></div>
+        </div>
+
+        <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 8px;">📊 全局采购总清单 (已按上方模式核算 + 5%安全预留)</h2>
+        <div class="summary-grid">
+            <div class="summary-card card-red">
+                <div class="summary-title"><span>红砖总采购量 (240×115×53)</span> <span>含打底/固定墩/背衬/斜砌</span></div>
+                <div class="summary-value" id="resRedTotal">0 <span class="summary-unit">块</span></div>
+                <div class="opt-box">
+                    • 整砖消耗：<span id="resRedWhole">0</span> 块 | 切割耗砖：<span id="resRedOptBins">0</span> 块 (共<span id="resRedCuts">0</span>处10mm模数切块)<br>
+                    • 统筹净量：<span id="resRedNet">0</span> 块 | <b>+5%安全损耗：<span id="resRedLoss">0</span> 块</b>
+                </div>
+            </div>
+            <div class="summary-card card-light">
+                <div class="summary-title"><span>轻质砖总采购量 (600×200×100)</span> <span id="lightModeSubTitle">全屋统筹模式</span></div>
+                <div class="summary-value" id="resLightTotal">0 <span class="summary-unit">块</span></div>
+                <div class="opt-box">
+                    • 整砖消耗：<span id="resLightWhole">0</span> 块 | 切割耗砖：<span id="resLightOptBins">0</span> 块 <span style="color:#059669;font-weight:bold;">(省下 <span id="resLightSaved">0</span> 块整砖)</span><br>
+                    • 统筹净量：<span id="resLightNet">0</span> 块 | <b>+5%安全损耗：<span id="resLightLoss">0</span> 块</b>
+                </div>
+            </div>
+            <div class="summary-card card-rebar">
+                <div class="summary-title"><span>植筋拉结筋总用量 (Φ6钢筋)</span> <span>靠原墙 @400高植入</span></div>
+                <div class="summary-value" id="resRebarTotal">0.0 <span class="summary-unit">米</span></div>
+                <div class="opt-box">
+                    • 总植筋孔数(根数)：<b><span id="resRebarCount">0</span> 根(孔)</b> (单根下料0.8m)<br>
+                    • 配套注射式植筋胶：<b>约 <span id="resGlueTubes">0</span> 支</b> (按390ml/支估算)
+                </div>
+            </div>
+        </div>
+        <div class="summary-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="summary-card card-mortar">
+                <div class="summary-title"><span>砌筑砂浆总采购量 (含新旧墙10~25mm接缝 + 砖缝 + 5%损耗)</span></div>
+                <div class="summary-value" id="resMortar">0.000 <span class="summary-unit">m³</span></div>
+            </div>
+            <div class="summary-card card-plaster">
+                <div class="summary-title"><span>抹灰砂浆总采购量 (含前后裸露大面 + 自由端面 + 洞口侧口10~25mm抹灰 + 5%损耗)</span></div>
+                <div class="summary-value" id="resPlaster">0.000 <span class="summary-unit">m³</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 单墙立面排砖深化图模态框 -->
+<div class="modal-overlay" id="drawModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="margin:0; color:#0f172a; font-size: 17px;">📐 <span id="modalWallTitle">墙段</span> 施工级双立面排砖深化图 (真实墙厚比例)</h2>
+            <div style="display:flex; align-items:center;">
+                <button class="btn btn-print" onclick="printHandoverSheet()">🖨️ 仅打印本墙交底单</button>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+        </div>
+        
+        <div class="local-stats">
+            <div class="local-stat-item">
+                <div style="font-size: 11px; color: #64748b;">墙厚完成面与抹灰调节</div>
+                <div class="val" style="color:#0f172a; font-size:12px;" id="modalScheme">-</div>
+                <div style="font-size: 10.5px; color:#7c3aed; font-weight:600;" id="modalPlasterSub">-</div>
+            </div>
+            <div class="local-stat-item">
+                <div style="font-size: 11px; color: #64748b;">墙长完成面与两端调节</div>
+                <div class="val" style="color:#0369a1; font-size:12.5px;" id="modalLenOpt">-</div>
+                <div style="font-size: 10.5px; color:#059669;" id="modalLenSub">-</div>
+            </div>
+            <div class="local-stat-item">
+                <div style="font-size: 11px; color: #64748b;">本墙红砖 / 轻质砖 (含5%损)</div>
+                <div class="val" style="color:#e11d48; font-size:14.5px;" id="modalRedLight">0 / 0 块</div>
+                <div style="font-size: 10.5px; color:#64748b;" id="modalRedLightSub">净用: 0 / 0</div>
+            </div>
+            <div class="local-stat-item">
+                <div style="font-size: 11px; color: #64748b;">本墙植筋量 (Φ6拉结筋)</div>
+                <div class="val" style="color:#16a34a;" id="modalRebar">0 根</div>
+                <div style="font-size: 10.5px; color:#64748b;" id="modalRebarSub">钢筋长: 0.0m</div>
+            </div>
+            <div class="local-stat-item">
+                <div style="font-size: 11px; color: #64748b;">自由端丁顺优选与顶皮高度</div>
+                <div style="font-size: 11px; color:#15803d; font-weight:600;" id="modalDirDesc">-</div>
+            </div>
+        </div>
+
+        <div class="legend-bar">
+            <div class="legend-item"><span class="c-box" style="background:#fca5a5;"></span> 整红砖(240)</div>
+            <div class="legend-item"><span class="c-box" style="background:#ef4444;"></span> <b>自由端/洞口红砖固定墩(底砖上满400高起嵌)</b></div>
+            <div class="legend-item"><span class="c-box" style="background:#7dd3fc;"></span> 整轻质砖(600×200)</div>
+            <div class="legend-item"><span class="c-box" style="background:#bae6fd; border:1.5px solid #0284c7;"></span> <b>最上一皮轻质砖(标注宽×高)</b></div>
+            <div class="legend-item"><span class="c-box" style="background:#e0f2fe; border-style:dashed;"></span> <b>10mm模数切砖(≤600短墙整块直铺)</b></div>
+            <div class="legend-item"><span class="c-box" style="background:#fde68a; border:1px solid #d97706;"></span> <b>新旧墙10~25mm砂浆缝</b></div>
+            <div class="legend-item"><span class="c-box" style="background:#ddd6fe; border:1px dashed #7c3aed;"></span> <b>裸露面10~25mm抹灰层</b></div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="wallCanvas"></canvas>
+        </div>
+
+        <div class="cut-schedule-box">
+            <div class="cut-card">
+                <h4>🟦 轻质砖 10mm 模数下料明细 (含跨墙余料互用说明)</h4>
+                <div id="modalLightCutList" class="cut-tags"></div>
+            </div>
+            <div class="cut-card">
+                <h4>🟥 红砖 10mm 模数下料明细 (含自由端丁/顺固定墩)</h4>
+                <div id="modalRedCutList" class="cut-tags"></div>
+            </div>
+            <div class="cut-card">
+                <h4>🔩 植筋算量与 10~25mm 灰缝/抹灰做法交底</h4>
+                <div id="modalRebarDetail" style="font-size:11.5px; color:#334155; line-height:1.55;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 单墙A4打印容器 -->
+<div id="printHandoverArea">
+    <div class="print-header">
+        <h2 id="prtTitle">二次结构砌筑深化排砖技术交底暨下料单</h2>
+        <div class="print-meta">
+            <span id="prtWallInfo">墙段编号：W1</span>
+            <span id="prtSchemeInfo">构造做法：-</span>
+            <span id="prtDate">交底日期：-</span>
+        </div>
+    </div>
+    <div class="print-body">
+        <div class="print-img-box">
+            <div style="font-size:11px; font-weight:bold; margin-bottom:3px; text-align:left;">▼ 左图：墙体正立面排砖图 (含完成面总尺寸) | 右图：墙厚横剖立面图 (真实厚度比例)</div>
+            <img id="prtCanvasImg" src="" alt="双立面排砖图">
+        </div>
+        <div>
+            <table class="print-table">
+                <thead><tr><th colspan="4">一、完成面参数与材料领用表 (含5%安全损耗)</th></tr></thead>
+                <tbody>
+                    <tr><td width="24%"><b>完成面尺寸</b></td><td width="26%" id="prtDim">-</td><td width="24%"><b>门窗洞口</b></td><td width="26%" id="prtHole">-</td></tr>
+                    <tr><td><b>长/厚调节</b></td><td colspan="3" id="prtTopOpt">-</td></tr>
+                    <tr><td><b>标准红砖</b></td><td id="prtRedTotal" style="font-weight:bold;">-</td><td><b>600轻质砖</b></td><td id="prtLightTotal" style="font-weight:bold;">-</td></tr>
+                    <tr><td><b>植筋(Φ6钢筋)</b></td><td id="prtRebarTotal" style="font-weight:bold;color:#15803d;">-</td><td><b>砌筑/抹灰砂浆</b></td><td id="prtMortarPlaster">-</td></tr>
+                </tbody>
+            </table>
+            <table class="print-table">
+                <thead><tr><th>二、现场集中切砖(10mm模数)、跨墙余料调配与植筋清单</th></tr></thead>
+                <tbody>
+                    <tr><td><b>1. 轻质砖下料与跨墙互用：</b><br><span id="prtLightCutsText">-</span></td></tr>
+                    <tr><td><b>2. 红砖与植筋下料：</b><br><span id="prtRedCutsText">-</span></td></tr>
+                </tbody>
+            </table>
+            <div class="print-notes">
+                <b>三、现场砌筑、抹灰与植筋施工技术交底要求：</b><br>
+                1. <b>尺寸与短墙整铺规则</b>：总标注均为<b>最终完成面尺寸</b>。新旧墙交接留置 <span id="prtJointNote">10~25mm</span> 砂浆缝；裸露面批刮 <span id="prtPlasterNote">10~25mm</span> 抹灰层；净长≤600mm的短墙/门垛直接单块整铺，不作二次切缝。<br>
+                2. <b>化学植筋工艺</b>：靠旧墙侧每隔400mm高植入2Φ6拉结筋（薄墙1Φ6），单根800mm（入旧墙100mm+入新墙700mm），严格执行“定位→钻孔→三吹两刷清孔→注胶2/3→旋入固化”。<br>
+                3. <b>自由端固定墩与顶塞</b>：底部满砌5皮红砖（310mm高），往上砌满400mm（2皮轻质砖）后每隔400mm高嵌3皮红砖固定墩（<span id="prtFixModeNote">丁/顺</span>）；顶部预留 <span id="prtObliqueHNote">180~200mm</span> 空隙，间隔7天后红砖60°斜砌挤紧。
+            </div>
+        </div>
+    </div>
+    <div class="print-sign">
+        <span>交底人（项目经理）签字：______________________</span>
+        <span>签收人（施工班组长）签字：______________________</span>
+        <span>日期：______年____月____日</span>
+    </div>
+</div>
+
+<!-- 全套工程多页交底册打印容器 -->
+<div id="printBatchArea"></div>
+<!-- 第一部分到此结束，请在下方紧接着粘贴第二部分 (<script>...</script></body></html>) -->
+<script>
+    const JOINT = 10;          // 标准砖间灰缝 10mm
+    const SAW_LOSS = 0;        // 10mm整十模数下灰缝自动消化锯缝，互补切块直接一砖两用
+    const SAFE_LOSS = 1.05;    // 5% 安全损耗
+    const REBAR_UNIT_LEN = 0.8;// 单根植筋下料长度 0.8m (锚固100mm + 入新墙700mm)
+    const V_RB = 0.24 * 0.115 * 0.053;
+    const V_LB = 0.60 * 0.20 * 0.10;
+    const LOGICAL_W = 1380;
+    const LOGICAL_H = 660;
+    const STORAGE_KEY = 'BIM_MASONRY_PRO_STATE_V2';
+
+    const DEFAULT_STATE = {
+        projectName: "二次结构砌筑深化工程",
+        enableGlobalReuse: true,
+        walls: [
+            { name: "B轴-门边自由端墙", l: 2460, h: 3000, t: 150, lb: "wall", rb: "free", hx: 0, hy: 0, hw: 0, hh: 0 },
+            { name: "A轴-复合厚隔墙", l: 3850, h: 2930, t: 200, lb: "bite_out", rb: "wall", hx: 1100, hy: 0, hw: 900, hh: 2100 },
+            { name: "C轴-管井短隔墙", l: 580, h: 3000, t: 150, lb: "wall", rb: "free", hx: 0, hy: 0, hw: 0, hh: 0 }
+        ]
+    };
+
+    let currentPreviewData = null;
+    let calcDebounceTimer = null;
+    let globalReuseWallNotes = {}; // 记录每段墙跨墙调配碎砖的详细说明
+
+    function setText(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = String(val);
+    }
+    function setHTML(id, html) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    }
+
+    function createWallRowTR(idx, w) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="row-label">W${idx}</td>
+            <td><input type="text" class="input-name" value="${w.name || ('新建隔墙-' + idx)}"></td>
+            <td class="group-wall"><input type="number" class="input-l" value="${w.l ?? 3200}" step="10"></td>
+            <td class="group-wall"><input type="number" class="input-h" value="${w.h ?? 3000}" step="10"></td>
+            <td class="group-wall"><input type="number" class="input-t" value="${w.t ?? 150}" step="5"></td>
+            <td class="group-bound">
+                <select class="input-left-bound">
+                    <option value="wall" ${w.lb === 'wall' ? 'selected' : ''}>靠原墙/柱 (10~25灰缝+植筋)</option>
+                    <option value="free" ${w.lb === 'free' ? 'selected' : ''}>自由端/门边 (10~25抹灰+隔400红砖)</option>
+                    <option value="bite_out" ${w.lb === 'bite_out' ? 'selected' : ''}>L/T新墙外伸咬槎 (隔皮外伸)</option>
+                    <option value="bite_in" ${w.lb === 'bite_in' ? 'selected' : ''}>L型新墙内退包角 (隔皮让位)</option>
+                </select>
+            </td>
+            <td class="group-bound">
+                <select class="input-right-bound">
+                    <option value="wall" ${w.rb === 'wall' ? 'selected' : ''}>靠原墙/柱 (10~25灰缝+植筋)</option>
+                    <option value="free" ${w.rb === 'free' ? 'selected' : ''}>自由端/门边 (10~25抹灰+隔400红砖)</option>
+                    <option value="bite_out" ${w.rb === 'bite_out' ? 'selected' : ''}>L/T新墙外伸咬槎 (隔皮外伸)</option>
+                    <option value="bite_in" ${w.rb === 'bite_in' ? 'selected' : ''}>L型新墙内退包角 (隔皮让位)</option>
+                </select>
+            </td>
+            <td class="group-hole"><input type="number" class="input-hx" value="${w.hx ?? 0}" step="10"></td>
+            <td class="group-hole"><input type="number" class="input-hy" value="${w.hy ?? 0}" step="10"></td>
+            <td class="group-hole"><input type="number" class="input-hw" value="${w.hw ?? 0}" step="10"></td>
+            <td class="group-hole"><input type="number" class="input-hh" value="${w.hh ?? 0}" step="10"></td>
+            <td>
+                <button class="btn btn-draw" onclick="previewWall(this)">📐 双立面交底单</button>
+                <button class="btn btn-del" onclick="deleteRow(this)">删</button>
+            </td>
+        `;
+        return tr;
+    }
+
+    function saveStateToStorage() {
+        try {
+            const tbody = document.getElementById('wallBody');
+            if (!tbody) return;
+            const walls = Array.from(tbody.children).map(row => ({
+                name: row.querySelector('.input-name')?.value || '',
+                l: parseFloat(row.querySelector('.input-l')?.value) || 0,
+                h: parseFloat(row.querySelector('.input-h')?.value) || 0,
+                t: parseFloat(row.querySelector('.input-t')?.value) || 0,
+                lb: row.querySelector('.input-left-bound')?.value || 'wall',
+                rb: row.querySelector('.input-right-bound')?.value || 'free',
+                hx: parseFloat(row.querySelector('.input-hx')?.value) || 0,
+                hy: parseFloat(row.querySelector('.input-hy')?.value) || 0,
+                hw: parseFloat(row.querySelector('.input-hw')?.value) || 0,
+                hh: parseFloat(row.querySelector('.input-hh')?.value) || 0
+            }));
+            const state = {
+                projectName: document.getElementById('projectName')?.value || '二次结构砌筑深化工程',
+                enableGlobalReuse: document.getElementById('enableGlobalReuse')?.checked ?? true,
+                walls: walls
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    function loadStateFromStorage() {
+        const tbody = document.getElementById('wallBody');
+        if (!tbody) return;
+        let state = null;
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.walls) && parsed.walls.length > 0) state = parsed;
+            }
+        } catch (e) {}
+        if (!state) state = DEFAULT_STATE;
+
+        const projEl = document.getElementById('projectName');
+        if (projEl && state.projectName) projEl.value = state.projectName;
+        const chkEl = document.getElementById('enableGlobalReuse');
+        if (chkEl) chkEl.checked = state.enableGlobalReuse !== false;
+
+        tbody.innerHTML = '';
+        state.walls.forEach((w, idx) => {
+            tbody.appendChild(createWallRowTR(idx + 1, w));
+        });
+    }
+
+    function resetToDefault() {
+        if (!confirm("确定要清空当前缓存的墙段数据，并恢复为默认示例墙段吗？")) return;
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        loadStateFromStorage();
+        calculateGlobal(true);
+        setText('calcStatusBadge', '↺ 已恢复默认示例墙段');
+    }
+
+    function onUserChange() {
+        saveStateToStorage();
+        if (calcDebounceTimer) clearTimeout(calcDebounceTimer);
+        calcDebounceTimer = setTimeout(() => {
+            calculateGlobal(false);
+            setText('calcStatusBadge', `💾 数据已自动保存 (${new Date().toLocaleTimeString()})`);
+        }, 120);
+    }
+
+    function addRow() {
+        const tbody = document.getElementById('wallBody');
+        if (!tbody) return;
+        const idx = tbody.children.length + 1;
+        tbody.appendChild(createWallRowTR(idx, { name: `新建隔墙-${idx}`, l: 3200, h: 3000, t: 150, lb: 'wall', rb: 'free', hx: 0, hy: 0, hw: 0, hh: 0 }));
+        updateRowLabels();
+        saveStateToStorage();
+        calculateGlobal(false);
+    }
+
+    function deleteRow(btn) {
+        const tbody = document.getElementById('wallBody');
+        if (tbody && tbody.children.length > 1) {
+            btn.closest('tr').remove();
+            updateRowLabels();
+            saveStateToStorage();
+            calculateGlobal(false);
+        } else {
+            alert("请至少保留一段墙！");
+        }
+    }
+
+    function updateRowLabels() {
+        const tbody = document.getElementById('wallBody');
+        if (!tbody) return;
+        Array.from(tbody.children).forEach((row, i) => {
+            const lbl = row.querySelector('.row-label');
+            if (lbl) lbl.innerText = `W${i + 1}`;
+        });
+    }
+
+    function closeModal() {
+        const m = document.getElementById('drawModal');
+        if (m) m.style.display = 'none';
+    }
+
+    // 1. 墙厚方向骨架与双面 10~25mm 抹灰匹配算法 (极短墙熔断阈值下调至 300mm，确保 310~600mm 短墙正常使用单块轻质砖整铺)
+    function getWallScheme(L, T) {
+        if (L <= 300) {
+            let bare = T < 115 ? 53 : (T < 175 ? 115 : (T < 225 ? 175 : 240));
+            let mult = T < 115 ? 1 : (T < 175 ? 1 : (T < 225 ? 1.5 : 2));
+            let pSide = Math.max(10, (T - bare) / 2);
+            return {
+                name: `极窄垛全红砖(裸${bare}+双面抹灰各${pSide.toFixed(1)}mm)`,
+                sectionDesc: `全红砖裸厚${bare}mm`,
+                allRed: true, redFaceH: T < 115 ? 115 : 53, redDepthMult: mult, lightDepthMult: 0,
+                hasBackingRed: false, redBareMM: bare, lightBareMM: bare, innerJointMM: 0,
+                plasterSideMM: pSide, redBareT: bare / 1000, lightBareT: bare / 1000,
+                redBiteDepth: 120, lightBiteDepth: 120
+            };
+        }
+        if (T < 120) {
+            let pSide = Math.max(10, (T - 53) / 2);
+            return {
+                name: `1/4红砖竖砌(裸53+双面抹灰各${pSide.toFixed(1)}mm)`,
+                sectionDesc: `红砖竖砌53mm`,
+                allRed: true, redFaceH: 115, redDepthMult: 1, lightDepthMult: 0,
+                hasBackingRed: false, redBareMM: 53, lightBareMM: 53, innerJointMM: 0,
+                plasterSideMM: pSide, redBareT: 0.053, lightBareT: 0.053,
+                redBiteDepth: 120, lightBiteDepth: 120
+            };
+        } else if (T >= 120 && T <= 155) {
+            let pSide = (T - 100) / 2;
+            let redBare = (T >= 135) ? 115 : 100;
+            return {
+                name: `100轻砖+双面抹灰各${pSide.toFixed(1)}mm(底红砖${redBare})`,
+                sectionDesc: `中100轻砖 / 底${redBare}红砖`,
+                allRed: false, redFaceH: 53, redDepthMult: 1, lightDepthMult: 1,
+                hasBackingRed: false, redBareMM: redBare, lightBareMM: 100, innerJointMM: 0,
+                plasterSideMM: pSide, redBareT: redBare / 1000, lightBareT: 0.100,
+                redBiteDepth: 120, lightBiteDepth: 100
+            };
+        } else if (T > 155 && T < 185) {
+            if (T <= 165) {
+                let pSide = (T - 115) / 2;
+                return {
+                    name: `115红砖平砌+双面抹灰各${pSide.toFixed(1)}mm`,
+                    sectionDesc: `全墙115红砖平砌`,
+                    allRed: true, redFaceH: 53, redDepthMult: 1, lightDepthMult: 0,
+                    hasBackingRed: false, redBareMM: 115, lightBareMM: 115, innerJointMM: 0,
+                    plasterSideMM: pSide, redBareT: 0.115, lightBareT: 0.115,
+                    redBiteDepth: 120, lightBiteDepth: 120
+                };
+            } else {
+                let pSide = Math.max(10, (T - 163) / 2);
+                return {
+                    name: `复合墙(100轻+10缝+53红竖=163)+抹灰各${pSide.toFixed(1)}mm`,
+                    sectionDesc: `100轻+10缝+53红竖(163mm)`,
+                    allRed: false, redFaceH: 53, redDepthMult: 1.5, lightDepthMult: 1,
+                    hasBackingRed: true, redBareMM: 163, lightBareMM: 163, innerJointMM: 10,
+                    plasterSideMM: pSide, redBareT: 0.163, lightBareT: 0.163,
+                    redBiteDepth: 120, lightBiteDepth: 100
+                };
+            }
+        } else if (T >= 185 && T < 220) {
+            let innerJ = Math.min(25, Math.max(10, Math.round(T - 30 - 153)));
+            let lightBare = 100 + innerJ + 53;
+            let redBare = Math.min(T - 20, 115 + innerJ + 53);
+            let pSide = (T - lightBare) / 2;
+            return {
+                name: `复合墙(100轻+${innerJ}缝+53红竖=${lightBare})+双面抹灰各${pSide.toFixed(1)}mm`,
+                sectionDesc: `100轻+${innerJ}缝+53红竖(${lightBare}mm)`,
+                allRed: false, redFaceH: 53, redDepthMult: 2, lightDepthMult: 1,
+                hasBackingRed: true, redBareMM: redBare, lightBareMM: lightBare, innerJointMM: innerJ,
+                plasterSideMM: pSide, redBareT: redBare / 1000, lightBareT: lightBare / 1000,
+                redBiteDepth: 120, lightBiteDepth: 100
+            };
+        } else {
+            let innerJ = T > 250 ? Math.min(25, Math.max(10, T - 230)) : 0;
+            let lightBare = 200 + innerJ;
+            let redBare = Math.min(240, T - 20);
+            let pSide = Math.max(10, (T - lightBare) / 2);
+            return {
+                name: `厚墙(轻砖裸厚${lightBare}+底红砖${redBare})+双面抹灰各${pSide.toFixed(1)}mm`,
+                sectionDesc: `底${redBare}红砖 / 中${lightBare}轻砖`,
+                allRed: false, redFaceH: 53, redDepthMult: 2, lightDepthMult: 2,
+                hasBackingRed: false, redBareMM: redBare, lightBareMM: lightBare, innerJointMM: innerJ,
+                plasterSideMM: pSide, redBareT: redBare / 1000, lightBareT: lightBare / 1000,
+                redBiteDepth: 120, lightBiteDepth: 200
+            };
+        }
+    }
+
+    // 2. 顶部斜砌(180~200mm)与最上一皮轻质砖10mm整十高度寻优
+    function optimizeTopZoneHeight(H, bottomRedH, allRed) {
+        if (allRed || H <= bottomRedH + 220) {
+            return { topRedH: 190, topLightBrickH: 200, topNote: "全红砖砌筑", reuseFactor: 1 };
+        }
+        const availH = H - bottomRedH;
+        let best = null;
+        for (let topH = 180; topH <= 200; topH++) {
+            const midH = availH - topH;
+            if (midH <= 0) continue;
+            let fullRows = Math.floor(midH / 210);
+            let rem = midH - fullRows * 210;
+            let lastBrickH = (rem === 0) ? 200 : (rem >= 70 ? rem - JOINT : 0);
+            if (lastBrickH === 0 || lastBrickH % 10 !== 0) continue;
+
+            let score = (lastBrickH === 200) ? 1000 : (lastBrickH === 100 ? 950 : 500 + lastBrickH);
+            let reuseFactor = (lastBrickH <= 100) ? 0.5 : 1;
+            let note = (lastBrickH === 200)
+                ? `顶皮200mm整高(免横切)，斜砌${topH}mm`
+                : (lastBrickH === 100 ? `顶皮高100mm(对剖两用,0废料)，斜砌${topH}mm` : `顶皮定高${lastBrickH}mm(10mm模数)，斜砌${topH}mm`);
+
+            if (!best || score > best.score) {
+                best = { topRedH: topH, topLightBrickH: lastBrickH, topNote: note, reuseFactor, score };
+            }
+        }
+        if (!best) {
+            let midH = availH - 190;
+            let fullRows = Math.max(0, Math.floor((midH - 70) / 210));
+            let rawLastH = midH - fullRows * 210 - JOINT;
+            let roundedLastH = Math.max(60, Math.min(200, Math.round(rawLastH / 10) * 10));
+            let actualTopH = Math.max(180, Math.min(200, Math.round(availH - (fullRows * 210 + roundedLastH + JOINT))));
+            return {
+                topRedH: actualTopH, topLightBrickH: roundedLastH,
+                topNote: `顶皮定高${roundedLastH}mm，斜砌${actualTopH}mm`,
+                reuseFactor: roundedLastH <= 100 ? 0.5 : 1
+            };
+        }
+        return best;
+    }
+
+    /**
+     * 3. 单行排砖器
+     * 新增核心规则 (Requirement 1):
+     * 当区段净长 segL <= 600mm 时（如550mm短墙或门垛），常规轻质砖行绝不切分成两半（如220+330），而是直接单块 550mm 整铺！
+     * 若该皮为每隔400mm高的红砖固定墩皮（FIX_RED），则嵌完固定墩后，剩余长度也直接单块满铺。
+     */
+    function buildRowSegment(segStart, segEnd, dir, mode, startRule, fixPierMode = 'DING_130', endAlsoFixRed = false) {
+        const segL = Math.max(0, Math.round((segEnd - segStart) / 10) * 10);
+        if (segL <= 0) return [];
+        let pieces = [];
+
+        if (mode === 'RED' || segL <= 280) {
+            let firstW = (startRule === 'HALF') ? 120 : 240;
+            let rem = segL;
+            if (rem <= 240) {
+                let w10 = Math.max(60, Math.round(rem / 10) * 10);
+                pieces.push({ w: w10, jointAfter: JOINT, type: w10 >= 240 ? 'red_whole' : 'red_cut' });
+            } else {
+                pieces.push({ w: firstW, jointAfter: JOINT, type: firstW >= 240 ? 'red_whole' : 'red_cut' });
+                rem -= (firstW + JOINT);
+                while (rem > 240) {
+                    pieces.push({ w: 240, jointAfter: JOINT, type: 'red_whole' });
+                    rem -= 250;
+                }
+                if (rem > 0) {
+                    let w10 = Math.round(rem / 10) * 10;
+                    if (w10 < 60 && pieces.length > 0 && pieces[pieces.length - 1].w >= 180) {
+                        pieces[pieces.length - 1].w -= (100 - w10);
+                        pieces[pieces.length - 1].type = 'red_cut';
+                        w10 = 100;
+                    }
+                    pieces.push({ w: w10, jointAfter: 0, type: w10 >= 240 ? 'red_whole' : 'red_cut' });
+                }
+            }
+        } else {
+            const pierBrickW = (fixPierMode === 'SHUN_250') ? 240 : 115;
+            const pierJointW = (fixPierMode === 'SHUN_250') ? 10 : 15;
+            const pierModule = pierBrickW + pierJointW;
+
+            // 【核心规则1】：净长 <= 600mm 的短墙/门垛，拒绝无意义的二次分块切割！
+            if (segL <= 600) {
+                if (startRule === 'FIX_RED' && segL >= pierModule + 120) {
+                    pieces.push({ w: pierBrickW, jointAfter: pierJointW, type: 'red_fix' });
+                    let remW = Math.round((segL - pierModule) / 10) * 10;
+                    pieces.push({ w: remW, jointAfter: 0, type: remW >= 600 ? 'light_whole' : 'light_cut' });
+                } else {
+                    // 直接单块轻质砖整铺到底（如550mm直接铺一块550mm，600mm直接铺整砖）
+                    pieces.push({ w: segL, jointAfter: 0, type: segL >= 600 ? 'light_whole' : 'light_cut' });
+                }
+            } else {
+                // 净长 > 600mm 的常规墙体排布
+                let reserveEndFix = (endAlsoFixRed && segL >= 650);
+                let rem = reserveEndFix ? (segL - pierModule) : segL;
+
+                if (startRule === 'FIX_RED') {
+                    pieces.push({ w: pierBrickW, jointAfter: pierJointW, type: 'red_fix' });
+                    rem -= pierModule;
+                } else if (startRule === 'LIGHT_STAGGER') {
+                    let staggerW = (fixPierMode === 'SHUN_250') ? 420 : 360;
+                    let firstW = Math.round(Math.min(staggerW, rem) / 10) * 10;
+                    pieces.push({ w: firstW, jointAfter: JOINT, type: firstW >= 600 ? 'light_whole' : 'light_cut' });
+                    rem -= (firstW + JOINT);
+                } else if (startRule === 'HALF') {
+                    let firstW = Math.round(Math.min(300, rem) / 10) * 10;
+                    pieces.push({ w: firstW, jointAfter: JOINT, type: 'light_cut' });
+                    rem -= (firstW + JOINT);
+                }
+
+                while (rem > 600) {
+                    pieces.push({ w: 600, jointAfter: JOINT, type: 'light_whole' });
+                    rem -= 610;
+                }
+
+                if (rem > 0) {
+                    let w10 = Math.round(rem / 10) * 10;
+                    if (w10 >= 160) {
+                        pieces.push({ w: w10, jointAfter: reserveEndFix ? pierJointW : 0, type: w10 >= 600 ? 'light_whole' : 'light_cut' });
+                    } else {
+                        let prevIdx = pieces.length - 1;
+                        if (prevIdx >= 0 && (pieces[prevIdx].type === 'light_whole' || pieces[prevIdx].type === 'light_cut') && pieces[prevIdx].w >= 380) {
+                            let targetTail = 220;
+                            pieces[prevIdx].w -= (targetTail - w10);
+                            pieces[prevIdx].type = 'light_cut';
+                            pieces.push({ w: targetTail, jointAfter: reserveEndFix ? pierJointW : 0, type: 'light_cut' });
+                        } else {
+                            pieces.push({ w: Math.max(100, w10), jointAfter: reserveEndFix ? pierJointW : 0, type: 'light_cut' });
+                        }
+                    }
+                }
+                if (reserveEndFix) pieces.push({ w: pierBrickW, jointAfter: 0, type: 'red_fix' });
+            }
+        }
+
+        let layout = [];
+        if (dir === 'L2R') {
+            let curX = segStart;
+            for (let i = 0; i < pieces.length; i++) {
+                let w = pieces[i].w;
+                let jAfter = (i === pieces.length - 1) ? 0 : (pieces[i].jointAfter || JOINT);
+                layout.push({ x: curX, w: w, type: pieces[i].type });
+                curX += (w + jAfter);
+            }
+        } else {
+            let curRight = segEnd;
+            for (let i = 0; i < pieces.length; i++) {
+                let w = pieces[i].w;
+                let jAfter = (i === pieces.length - 1) ? 0 : (pieces[i].jointAfter || JOINT);
+                let x = curRight - w;
+                layout.push({ x: x, w: w, type: pieces[i].type });
+                curRight -= (w + jAfter);
+            }
+        }
+        return layout;
+    }
+
+    // 4. 两端 10~25mm 灰缝/抹灰厚度与丁/顺砌法联合寻优
+    function optimizeSpanAllowanceAndPier(rawSpanFinishedL, T, hasStartFree, hasEndFree) {
+        const spanFinishedL = Math.max(60, Math.round(rawSpanFinishedL));
+        if (spanFinishedL <= 300) {
+            let bareL = Math.max(40, Math.round((spanFinishedL - 30) / 10) * 10);
+            let totalD = Math.max(20, spanFinishedL - bareL);
+            let dL = Math.floor(totalD / 2);
+            return { deltaL: dL, deltaR: totalD - dL, bareL, pierMode: 'DING_130', modeName: '全红砖窄垛' };
+        }
+
+        // 若完成面长度在 620~650mm 之间，优先调节两端抹灰/灰缝(合计20~50mm)，使砌体净长恰好 = 600mm 整块轻质砖（0切割）！
+        if (spanFinishedL >= 620 && spanFinishedL <= 650) {
+            let totalD = spanFinishedL - 600;
+            let dL = Math.floor(totalD / 2);
+            let dR = totalD - dL;
+            return {
+                deltaL: dL, deltaR: dR, bareL: 600,
+                pierMode: 'DING_130',
+                modeName: (hasStartFree || hasEndFree) ? '丁砌115(+15缝)/600整砖直铺' : '600整砖直铺(0切砖)'
+            };
+        }
+
+        let best = null;
+        const pierModes = (hasStartFree || hasEndFree)
+            ? [
+                { code: 'DING_130', name: '丁砌115(+15缝)', redCost: T < 180 ? 1.5 : 3.0 },
+                { code: 'SHUN_250', name: '顺砌240(+10缝)', redCost: T < 180 ? 3.0 : 6.0 }
+              ]
+            : [{ code: 'DING_130', name: '无自由端固定墩', redCost: 0 }];
+
+        for (let totalDelta = 20; totalDelta <= 50; totalDelta++) {
+            const bareL = spanFinishedL - totalDelta;
+            if (bareL <= 0 || bareL % 10 !== 0) continue;
+
+            let dL = Math.min(25, Math.max(10, Math.floor(totalDelta / 2)));
+            let dR = totalDelta - dL;
+            if (dR > 25) { dR = 25; dL = totalDelta - 25; }
+            if (dR < 10) { dR = 10; dL = totalDelta - 10; }
+
+            pierModes.forEach(pm => {
+                let testCuts = [];
+                // 从底砖往上先排2皮轻质砖(WHOLE -> LIGHT_STAGGER)，第3皮才嵌红砖(FIX_RED)
+                const rules = (hasStartFree || hasEndFree) ? ['WHOLE', 'LIGHT_STAGGER', 'FIX_RED'] : ['WHOLE', 'HALF', 'WHOLE'];
+                rules.forEach((r, idx) => {
+                    const row = buildRowSegment(0, bareL, 'L2R', 'LIGHT', r, pm.code, hasStartFree && hasEndFree && idx === 2);
+                    row.forEach(b => { if (b.type === 'light_cut') testCuts.push(b.w); });
+                });
+                const cutBins = optimizeCuts(testCuts, 600);
+                const sumCutLen = testCuts.reduce((a, b) => a + b, 0);
+                const wasteLen = (cutBins * 600) - sumCutLen;
+                const cost = (wasteLen * 0.15) + (testCuts.length * 12) + (pm.redCost * 6) + Math.abs(totalDelta - 30) * 0.2;
+                if (!best || cost < best.cost) {
+                    best = { deltaL: dL, deltaR: dR, bareL, pierMode: pm.code, modeName: pm.name, cost };
+                }
+            });
+        }
+        if (!best) {
+            let bareL = Math.max(100, Math.round((spanFinishedL - 30) / 10) * 10);
+            let totalD = Math.max(20, spanFinishedL - bareL);
+            let dL = Math.floor(totalD / 2);
+            return { deltaL: dL, deltaR: totalD - dL, bareL, pierMode: 'DING_130', modeName: '丁砌115(+15缝)' };
+        }
+        return best;
+    }
+
+    function drawClearLabel(ctx, centerX, centerY, text, textColor, bgColor = null, fontSize = 10, isBold = true) {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.scale(1, -1);
+        ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px "Segoe UI", "PingFang SC", monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if (bgColor) {
+            const m = ctx.measureText(text);
+            const bw = m.width + 8, bh = fontSize + 5;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+        }
+        ctx.fillStyle = textColor;
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+    }
+
+    function drawCADDimLine(ctx, x1, y1, x2, y2, labelText, color = '#0f172a', fontSize = 11) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        const isHoriz = Math.abs(y2 - y1) < 2;
+        const tick = 5;
+        if (isHoriz) {
+            ctx.moveTo(x1, y1 - tick); ctx.lineTo(x1, y1 + tick);
+            ctx.moveTo(x2, y2 - tick); ctx.lineTo(x2, y2 + tick);
+        } else {
+            ctx.moveTo(x1 - tick, y1); ctx.lineTo(x1 + tick, y1);
+            ctx.moveTo(x2 - tick, y2); ctx.lineTo(x2 + tick, y2);
+        }
+        ctx.stroke();
+        drawClearLabel(ctx, (x1 + x2) / 2, (y1 + y2) / 2, labelText, color, 'rgba(255,255,255,0.92)', fontSize, true);
+        ctx.restore();
+    }
+
+    // 5. 核心三维/二维推演引擎
+    function simulateWall(rawL, rawH, rawT, leftBound, rightBound, h_x, h_y, h_w, h_h, ctx = null, scale = 1) {
+        const L = Math.max(100, Math.round(rawL));
+        const H = Math.max(200, Math.round(rawH));
+        const T = Math.max(50, Math.round(rawT));
+
+        const scheme = getWallScheme(L, T);
+        const hasHole = (h_w > 0 && h_h > 0 && h_x >= 0 && h_x + h_w <= L && h_y < H);
+
+        const fullSpanOpt = optimizeSpanAllowanceAndPier(L, T, leftBound === 'free', rightBound === 'free');
+        const deltaL = fullSpanOpt.deltaL;
+        const deltaR = fullSpanOpt.deltaR;
+        const masonryStartX = deltaL;
+        const masonryEndX = L - deltaR;
+        const bareWallL = Math.max(40, masonryEndX - masonryStartX);
+
+        let leftPierOpt = null, rightPierOpt = null;
+        let holeMasonryLeft = 0, holeMasonryRight = 0;
+        let jambPlasterL = 0, jambPlasterR = 0;
+
+        if (hasHole) {
+            leftPierOpt = optimizeSpanAllowanceAndPier(Math.max(0, h_x), T, leftBound === 'free', true);
+            jambPlasterL = (h_x > 60) ? leftPierOpt.deltaR : 0;
+            holeMasonryLeft = Math.max(masonryStartX, h_x - jambPlasterL);
+
+            const rightSpanFinishedL = Math.max(0, L - (h_x + h_w));
+            rightPierOpt = optimizeSpanAllowanceAndPier(rightSpanFinishedL, T, true, rightBound === 'free');
+            jambPlasterR = (rightSpanFinishedL > 60) ? rightPierOpt.deltaL : 0;
+            holeMasonryRight = Math.min(masonryEndX, h_x + h_w + jambPlasterR);
+        }
+
+        const holeBottom = hasHole ? Math.max(0, h_y) : 0;
+        const holeTop = hasHole ? Math.min(H, h_y + h_h) : 0;
+        const bottomRedH = 310;
+        const topOpt = optimizeTopZoneHeight(H, bottomRedH, scheme.allRed);
+        const topRedH = topOpt.topRedH;
+
+        const hasLintel = hasHole && (holeTop < H - topRedH);
+        const lintelH = hasLintel ? Math.min(200, (H - topRedH) - holeTop) : 0;
+        const lintelLeft = hasLintel ? Math.max(masonryStartX, holeMasonryLeft - 240) : 0;
+        const lintelRight = hasLintel ? Math.min(masonryEndX, holeMasonryRight + 240) : 0;
+        const lintelBottom = holeTop;
+        const lintelTop = holeTop + lintelH;
+
+        let redWholeCount = 0, redCuts = [], lightWholeCount = 0, lightCuts = [], topRowLightBricks = [];
+        let lightZoneNetArea_m2 = 0, obliqueBrickCount = 0, backingRedCount = 0, tieBarLevels = [];
+
+        function getPriority(b) { return b === 'free' ? 4 : (b === 'bite_out' ? 3 : (b === 'bite_in' ? 2 : 1)); }
+        const mainDir = (getPriority(rightBound) > getPriority(leftBound)) ? 'R2L' : 'L2R';
+
+        let currentY = 0, redCourseIdx = 0, lightCourseIdx = 0, totalCourseIdx = 0, allCoursesMeta = [];
+
+        if (ctx) {
+            ctx.fillStyle = (leftBound === 'free') ? '#ddd6fe' : '#fde68a';
+            ctx.fillRect(0, 0, deltaL * scale, H * scale);
+            ctx.strokeStyle = (leftBound === 'free') ? '#7c3aed' : '#d97706';
+            ctx.setLineDash([2, 2]);
+            ctx.strokeRect(0, 0, deltaL * scale, H * scale);
+
+            ctx.fillStyle = (rightBound === 'free') ? '#ddd6fe' : '#fde68a';
+            ctx.fillRect((L - deltaR) * scale, 0, deltaR * scale, H * scale);
+            ctx.strokeStyle = (rightBound === 'free') ? '#7c3aed' : '#d97706';
+            ctx.strokeRect((L - deltaR) * scale, 0, deltaR * scale, H * scale);
+
+            if (hasHole) {
+                ctx.fillStyle = '#ddd6fe'; ctx.strokeStyle = '#7c3aed';
+                if (jambPlasterL > 0) {
+                    ctx.fillRect(holeMasonryLeft * scale, holeBottom * scale, jambPlasterL * scale, (holeTop - holeBottom) * scale);
+                    ctx.strokeRect(holeMasonryLeft * scale, holeBottom * scale, jambPlasterL * scale, (holeTop - holeBottom) * scale);
+                }
+                if (jambPlasterR > 0) {
+                    ctx.fillRect((h_x + h_w) * scale, holeBottom * scale, jambPlasterR * scale, (holeTop - holeBottom) * scale);
+                    ctx.strokeRect((h_x + h_w) * scale, holeBottom * scale, jambPlasterR * scale, (holeTop - holeBottom) * scale);
+                }
+            }
+            ctx.setLineDash([]);
+        }
+
+        while (currentY < H) {
+            if (!scheme.allRed && currentY >= H - topRedH - 2) {
+                let topH = H - currentY;
+                let activeL = bareWallL;
+                if (hasHole && holeTop > currentY && holeBottom < H) activeL = Math.max(0, bareWallL - (holeMasonryRight - holeMasonryLeft));
+                allCoursesMeta.push({ y: currentY, h: topH, zone: 'OBLIQUE' });
+
+                if (ctx && topH > 0) {
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillRect(masonryStartX * scale, currentY * scale, bareWallL * scale, topH * scale);
+                    ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1; ctx.setLineDash([]);
+                    ctx.beginPath();
+                    for (let sx = masonryStartX; sx < masonryEndX; sx += 55) {
+                        ctx.moveTo(sx * scale, currentY * scale);
+                        ctx.lineTo(Math.min(masonryEndX, sx + 95) * scale, H * scale);
+                    }
+                    ctx.stroke();
+                    drawClearLabel(ctx, ((masonryStartX + masonryEndX) / 2) * scale, (currentY + topH / 2) * scale, `顶部红砖60°斜砌顶紧区 (优化高度 ${Math.round(topH)}mm)`, '#0f172a', 'rgba(255,255,255,0.88)', 11, true);
+                }
+                obliqueBrickCount = Math.ceil(activeL / 110) * scheme.redDepthMult;
+                redWholeCount += obliqueBrickCount;
+                break;
+            }
+
+            const isBottomRed = scheme.allRed || (currentY < bottomRedH);
+            const remToOblique = (H - topRedH) - currentY;
+            const isTopLightCourse = !isBottomRed && (remToOblique <= 215);
+            const courseH = isBottomRed ? scheme.redFaceH : (isTopLightCourse ? Math.max(60, Math.round((remToOblique - JOINT) / 10) * 10) : 200);
+            const vJoint = isBottomRed ? (scheme.redFaceH === 53 ? 9 : 10) : JOINT;
+            if (courseH <= 20) break;
+
+            allCoursesMeta.push({ y: currentY, h: courseH, zone: isBottomRed ? 'BOTTOM_RED' : (isTopLightCourse ? 'TOP_LIGHT' : 'MID_LIGHT') });
+
+            const rowTop = currentY + courseH;
+            const hitsHole = hasHole && (currentY < holeTop) && (rowTop > holeBottom);
+            const hitsLintel = hasLintel && (currentY < lintelTop) && (rowTop > lintelBottom);
+
+            if (!isBottomRed && lightCourseIdx % 2 === 0) tieBarLevels.push(currentY);
+
+            const biteD = isBottomRed ? scheme.redBiteDepth : scheme.lightBiteDepth;
+            const isOddCourse = (totalCourseIdx % 2 === 0);
+            let rowLeftStart = masonryStartX, rowRightEnd = masonryEndX;
+
+            if (leftBound === 'bite_out' && isOddCourse) rowLeftStart = masonryStartX - biteD;
+            else if (leftBound === 'bite_in' && !isOddCourse) {
+                rowLeftStart = masonryStartX + biteD;
+                if (ctx) {
+                    ctx.fillStyle = '#e9d5ff'; ctx.fillRect(masonryStartX * scale, currentY * scale, biteD * scale, courseH * scale);
+                    ctx.strokeStyle = '#7e22ce'; ctx.setLineDash([2, 2]); ctx.strokeRect(masonryStartX * scale, currentY * scale, biteD * scale, courseH * scale);
+                    if (courseH >= 100) drawClearLabel(ctx, (masonryStartX + biteD / 2) * scale, (currentY + courseH / 2) * scale, `咬入${biteD}`, '#581c87', 'rgba(255,255,255,0.85)', 9, true);
+                }
+            }
+
+            if (rightBound === 'bite_out' && isOddCourse) rowRightEnd = masonryEndX + biteD;
+            else if (rightBound === 'bite_in' && !isOddCourse) {
+                rowRightEnd = masonryEndX - biteD;
+                if (ctx) {
+                    ctx.fillStyle = '#e9d5ff'; ctx.fillRect((masonryEndX - biteD) * scale, currentY * scale, biteD * scale, courseH * scale);
+                    ctx.strokeStyle = '#7e22ce'; ctx.setLineDash([2, 2]); ctx.strokeRect((masonryEndX - biteD) * scale, currentY * scale, biteD * scale, courseH * scale);
+                    if (courseH >= 100) drawClearLabel(ctx, (masonryEndX - biteD / 2) * scale, (currentY + courseH / 2) * scale, `咬入${biteD}`, '#581c87', 'rgba(255,255,255,0.85)', 9, true);
+                }
+            }
+
+            let rowSegments = [];
+            if (isBottomRed) {
+                let sRule = (redCourseIdx % 2 === 0) ? 'WHOLE' : 'HALF';
+                if (hitsHole) {
+                    if (holeMasonryLeft > rowLeftStart) rowSegments.push({ start: rowLeftStart, end: holeMasonryLeft, dir: 'R2L', mode: 'RED', startRule: sRule, pierMode: 'SHUN_250', endFix: false });
+                    if (holeMasonryRight < rowRightEnd) rowSegments.push({ start: holeMasonryRight, end: rowRightEnd, dir: 'L2R', mode: 'RED', startRule: sRule, pierMode: 'SHUN_250', endFix: false });
+                } else {
+                    rowSegments.push({ start: rowLeftStart, end: rowRightEnd, dir: mainDir, mode: 'RED', startRule: sRule, pierMode: 'SHUN_250', endFix: false });
+                }
+                redCourseIdx++;
+            } else {
+                // 【关键修正】：从底部310/315mm红砖往上先砌2皮轻质砖(满400mm高，即 lightCourseIdx = 0 和 1)，到第3皮(lightCourseIdx % 3 === 2)才第一次嵌砌红砖固定墩！
+                const isUnderLintelCourse = hasHole && (rowTop + 30 >= holeTop) && (currentY < holeTop);
+                const isFixCourse = !isTopLightCourse && ((lightCourseIdx % 3 === 2) || isUnderLintelCourse);
+                function getJambStartRule(hasFixJamb) {
+                    if (hasFixJamb) {
+                        if (isFixCourse) return 'FIX_RED';
+                        return (lightCourseIdx % 3 === 0) ? 'WHOLE' : 'LIGHT_STAGGER';
+                    }
+                    return (lightCourseIdx % 2 === 0) ? 'WHOLE' : 'HALF';
+                }
+
+                if (hitsHole) {
+                    if (holeMasonryLeft > rowLeftStart) {
+                        rowSegments.push({ start: rowLeftStart, end: holeMasonryLeft, dir: 'R2L', mode: 'LIGHT', startRule: getJambStartRule(true), pierMode: leftPierOpt ? leftPierOpt.pierMode : 'DING_130', endFix: (leftBound === 'free') && isFixCourse });
+                    }
+                    if (holeMasonryRight < rowRightEnd) {
+                        rowSegments.push({ start: holeMasonryRight, end: rowRightEnd, dir: 'L2R', mode: 'LIGHT', startRule: getJambStartRule(true), pierMode: rightPierOpt ? rightPierOpt.pierMode : 'DING_130', endFix: (rightBound === 'free') && isFixCourse });
+                    }
+                } else if (hitsLintel) {
+                    if (lintelLeft > rowLeftStart) {
+                        let useL2R = (leftBound === 'free');
+                        rowSegments.push({ start: rowLeftStart, end: lintelLeft, dir: useL2R ? 'L2R' : 'R2L', mode: 'LIGHT', startRule: getJambStartRule(useL2R), pierMode: leftPierOpt ? leftPierOpt.pierMode : fullSpanOpt.pierMode, endFix: false });
+                    }
+                    if (lintelRight < rowRightEnd) {
+                        let useR2L = (rightBound === 'free');
+                        rowSegments.push({ start: lintelRight, end: rowRightEnd, dir: useR2L ? 'R2L' : 'L2R', mode: 'LIGHT', startRule: getJambStartRule(useR2L), pierMode: rightPierOpt ? rightPierOpt.pierMode : fullSpanOpt.pierMode, endFix: false });
+                    }
+                } else {
+                    const startIsFree = (mainDir === 'R2L') ? (rightBound === 'free') : (leftBound === 'free');
+                    const endIsFree = (mainDir === 'R2L') ? (leftBound === 'free') : (rightBound === 'free');
+                    rowSegments.push({ start: rowLeftStart, end: rowRightEnd, dir: mainDir, mode: 'LIGHT', startRule: getJambStartRule(startIsFree), pierMode: fullSpanOpt.pierMode, endFix: endIsFree && isFixCourse });
+                }
+                lightCourseIdx++;
+            }
+
+            for (let s = 0; s < rowSegments.length; s++) {
+                const seg = rowSegments[s];
+                if (!isBottomRed) lightZoneNetArea_m2 += ((seg.end - seg.start) * courseH) / 1000000;
+                const bricks = buildRowSegment(seg.start, seg.end, seg.dir, seg.mode, seg.startRule, seg.pierMode, seg.endFix);
+                for (let b = 0; b < bricks.length; b++) {
+                    const item = bricks[b];
+                    const isProtrudingBite = (item.x < masonryStartX - 1) || (item.x + item.w > masonryEndX + 1);
+
+                    if (item.type === 'red_fix') {
+                        const subRows = 3, subH = (courseH - 14) / 3;
+                        for (let r = 0; r < subRows; r++) {
+                            let subY = currentY + r * (subH + 7);
+                            if (ctx) {
+                                ctx.beginPath(); ctx.rect(item.x * scale, subY * scale, item.w * scale, subH * scale);
+                                ctx.fillStyle = '#ef4444'; ctx.fill();
+                                ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 1; ctx.setLineDash([]); ctx.stroke();
+                            }
+                            redWholeCount += (item.w <= 125) ? (T < 180 ? 0.5 : 1.0) : scheme.redDepthMult;
+                        }
+                        if (ctx && item.w * scale >= 12) {
+                            drawClearLabel(ctx, (item.x + item.w / 2) * scale, (currentY + courseH / 2) * scale, item.w <= 125 ? `固115(丁)` : `固240(顺)`, '#ffffff', 'rgba(153,27,27,0.9)', 9.5, true);
+                        }
+                    } else if (item.type === 'red_whole' || item.type === 'red_cut') {
+                        const isCut = (item.type === 'red_cut');
+                        if (ctx) {
+                            ctx.beginPath(); ctx.rect(item.x * scale, currentY * scale, item.w * scale, courseH * scale);
+                            ctx.fillStyle = isProtrudingBite ? '#f3e8ff' : (isCut ? '#fee2e2' : '#fca5a5'); ctx.fill();
+                            ctx.strokeStyle = isProtrudingBite ? '#7e22ce' : '#b91c1c'; ctx.lineWidth = 1; ctx.setLineDash(isCut ? [2, 2] : []); ctx.stroke();
+                            if (item.w * scale >= 14 && courseH * scale >= 6.5) {
+                                drawClearLabel(ctx, (item.x + item.w / 2) * scale, (currentY + courseH / 2) * scale, `${Math.round(item.w)}`, '#7f1d1d', null, 8.5, isCut);
+                            }
+                        }
+                        if (isCut) { for (let m = 0; m < scheme.redDepthMult; m++) redCuts.push(Math.round(item.w)); }
+                        else redWholeCount += scheme.redDepthMult;
+                    } else {
+                        const isCut = (item.type === 'light_cut') || (courseH < 198);
+                        if (ctx) {
+                            ctx.beginPath(); ctx.rect(item.x * scale, currentY * scale, item.w * scale, courseH * scale);
+                            ctx.fillStyle = isProtrudingBite ? '#d8b4fe' : (isTopLightCourse ? '#bae6fd' : (item.type === 'light_cut' ? '#e0f2fe' : '#7dd3fc')); ctx.fill();
+                            ctx.strokeStyle = isProtrudingBite ? '#6b21a8' : (isTopLightCourse ? '#0284c7' : '#0369a1');
+                            ctx.lineWidth = isTopLightCourse ? 1.5 : 1.1; ctx.setLineDash(isCut && !isTopLightCourse ? [3, 2] : []); ctx.stroke();
+                            if (item.w * scale >= 18) {
+                                let tag = isTopLightCourse ? `${Math.round(item.w)}×高${Math.round(courseH)}` : (isProtrudingBite ? `咬${Math.round(item.w)}` : `${Math.round(item.w)}`);
+                                drawClearLabel(ctx, (item.x + item.w / 2) * scale, (currentY + courseH / 2) * scale, tag, isTopLightCourse ? '#0c4a6e' : '#075985', isTopLightCourse ? 'rgba(255,255,255,0.88)' : null, isTopLightCourse ? 9.5 : 11, isCut || isTopLightCourse);
+                            }
+                        }
+                        if (isTopLightCourse) {
+                            for (let m = 0; m < scheme.lightDepthMult; m++) topRowLightBricks.push({ w: Math.round(item.w), h: Math.round(courseH) });
+                        } else {
+                            if (item.type === 'light_cut') { for (let m = 0; m < scheme.lightDepthMult; m++) lightCuts.push(Math.round(item.w)); }
+                            else lightWholeCount += scheme.lightDepthMult;
+                        }
+                    }
+                }
+            }
+            currentY += (courseH + vJoint);
+            totalCourseIdx++;
+        }
+
+        let effectiveTopCount = Math.ceil(topRowLightBricks.length * topOpt.reuseFactor);
+        for (let i = 0; i < effectiveTopCount; i++) {
+            let bItem = topRowLightBricks[i] || { w: 600 };
+            if (bItem.w >= 595) lightWholeCount += 1;
+            else lightCuts.push(bItem.w);
+        }
+
+        if (ctx && hasLintel) {
+            ctx.setLineDash([]); ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(lintelLeft * scale, lintelBottom * scale, (lintelRight - lintelLeft) * scale, lintelH * scale);
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.2;
+            ctx.strokeRect(lintelLeft * scale, lintelBottom * scale, (lintelRight - lintelLeft) * scale, lintelH * scale);
+            drawClearLabel(ctx, ((lintelLeft + lintelRight) / 2) * scale, (lintelBottom + lintelH / 2) * scale, `C20钢筋混凝土过梁 (${Math.round(lintelRight - lintelLeft)}×${Math.round(lintelH)})`, '#ffffff', 'rgba(30,41,59,0.78)', 10.5, true);
+        }
+
+        const hasLeftOldWall = (leftBound === 'wall'), hasRightOldWall = (rightBound === 'wall');
+        const tieBarsPerLevel = (T < 120) ? 1 : 2;
+        const wallSideCount = (hasLeftOldWall ? 1 : 0) + (hasRightOldWall ? 1 : 0);
+        const totalTieLevels = Math.max(1, tieBarLevels.length);
+        const totalRebarCount = wallSideCount * totalTieLevels * tieBarsPerLevel;
+        const totalRebarLen_m = totalRebarCount * REBAR_UNIT_LEN * SAFE_LOSS;
+
+        if (ctx && (hasLeftOldWall || hasRightOldWall)) {
+            const rebarDrawLen = Math.min(700, L * 0.32) * scale;
+            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2.2; ctx.setLineDash([6, 3]);
+            tieBarLevels.forEach((ry, idx) => {
+                const yPx = (ry - JOINT / 2) * scale;
+                if (hasLeftOldWall) {
+                    ctx.beginPath(); ctx.moveTo(-18, yPx); ctx.lineTo(rebarDrawLen, yPx); ctx.stroke();
+                    if (idx === Math.floor(tieBarLevels.length / 2)) drawClearLabel(ctx, rebarDrawLen / 2 + 10, yPx + 9, `植筋${tieBarsPerLevel}Φ6@400`, '#15803d', 'rgba(240,253,244,0.9)', 9, true);
+                }
+                if (hasRightOldWall) {
+                    ctx.beginPath(); ctx.moveTo(L * scale + 18, yPx); ctx.lineTo(L * scale - rebarDrawLen, yPx); ctx.stroke();
+                    if (idx === Math.floor(tieBarLevels.length / 2)) drawClearLabel(ctx, L * scale - rebarDrawLen / 2 - 10, yPx + 9, `植筋${tieBarsPerLevel}Φ6@400`, '#15803d', 'rgba(240,253,244,0.9)', 9, true);
+                }
+            });
+            ctx.setLineDash([]);
+        }
+
+        if (scheme.hasBackingRed && lightZoneNetArea_m2 > 0) {
+            backingRedCount = Math.ceil(lightZoneNetArea_m2 * 32);
+            redWholeCount += backingRedCount;
+        }
+
+        const wallNetArea_m2 = ((bareWallL * H) - (hasHole ? (holeMasonryRight - holeMasonryLeft) * (holeTop - holeBottom) : 0)) / 1000000;
+        const bottomTopArea_m2 = Math.max(0, wallNetArea_m2 - lightZoneNetArea_m2);
+        const bareMasonryVol = (bottomTopArea_m2 * scheme.redBareT) + (lightZoneNetArea_m2 * scheme.lightBareT);
+
+        let oldWallJointVol = 0;
+        if (leftBound === 'wall') oldWallJointVol += (deltaL / 1000) * (H / 1000) * scheme.lightBareT;
+        if (rightBound === 'wall') oldWallJointVol += (deltaR / 1000) * (H / 1000) * scheme.lightBareT;
+
+        const estBrickSolidVol = (redWholeCount + redCuts.length * 0.55) * V_RB + (lightWholeCount + lightCuts.length * 0.55) * V_LB;
+        const netMortarVol = Math.max(0.003, (bareMasonryVol - estBrickSolidVol) + oldWallJointVol);
+
+        const frontBackPlasterVol = wallNetArea_m2 * ((T / 1000) - scheme.lightBareT);
+        let freeEndPlasterVol = 0;
+        if (leftBound === 'free') freeEndPlasterVol += (deltaL / 1000) * (H / 1000) * (T / 1000);
+        if (rightBound === 'free') freeEndPlasterVol += (deltaR / 1000) * (H / 1000) * (T / 1000);
+        let holeJambPlasterVol = hasHole ? (((jambPlasterL + jambPlasterR) / 1000) * ((holeTop - holeBottom) / 1000) * (T / 1000)) : 0;
+        const netPlasterVol = Math.max(0.003, frontBackPlasterVol + freeEndPlasterVol + holeJambPlasterVol);
+
+        const leftAllowanceTag = (leftBound === 'free') ? `左抹灰${deltaL}mm` : `左灰缝${deltaL}mm`;
+        const rightAllowanceTag = (rightBound === 'free') ? `右抹灰${deltaR}mm` : `右灰缝${deltaR}mm`;
+        const lenOptSummary = `完成长${L} = ${leftAllowanceTag} + 砌体净长${bareWallL}${bareWallL <= 600 ? '(≤600短墙整块直铺)' : ''} + ${rightAllowanceTag}`;
+        const pierModeSummary = (hasHole && leftPierOpt && rightPierOpt) ? `左垛:${leftPierOpt.modeName} / 右垛:${rightPierOpt.modeName}` : fullSpanOpt.modeName;
+
+        return {
+            scheme, topOpt, deltaL, deltaR, bareWallL, jambPlasterL, jambPlasterR,
+            lenOptSummary, pierModeSummary, redWholeCount, redCuts, lightWholeCount, lightCuts,
+            topRowLightBricks, obliqueBrickCount, backingRedCount, totalRebarCount, totalRebarLen_m,
+            tieBarsPerLevel, totalTieLevels, allCoursesMeta, netMortarVol, netPlasterVol
+        };
+    }
+
+    function drawBoundaryColumn(ctx, side, boundType, L, H, scale, scheme, deltaMM) {
+        const isLeft = (side === 'left');
+        const biteW = Math.max(scheme.redBiteDepth, scheme.lightBiteDepth);
+        if (boundType === 'wall') {
+            const colW = 32, x = isLeft ? -colW : L * scale;
+            ctx.fillStyle = '#475569'; ctx.fillRect(x, 0, colW, H * scale);
+            drawClearLabel(ctx, x + colW / 2, (H * scale) / 2 + 24, "旧墙", "#ffffff", null, 11, true);
+            drawClearLabel(ctx, x + colW / 2, (H * scale) / 2, `缝${deltaMM}`, "#fde047", null, 10, true);
+            drawClearLabel(ctx, x + colW / 2, (H * scale) / 2 - 24, "植筋", "#86efac", null, 10, true);
+        } else if (boundType === 'free') {
+            const x = isLeft ? 0 : L * scale;
+            ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H * scale); ctx.stroke(); ctx.setLineDash([]);
+            const labelX = isLeft ? -46 : L * scale + 46;
+            drawClearLabel(ctx, labelX, (H * scale) / 2 + 14, "自由端完成面", "#6d28d9", null, 10.5, true);
+            drawClearLabel(ctx, labelX, (H * scale) / 2 - 4, `(端抹灰${deltaMM}mm)`, "#7c3aed", null, 10, true);
+        } else {
+            const colW = biteW * scale, x = isLeft ? -colW : L * scale;
+            ctx.strokeStyle = '#7e22ce'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+            ctx.strokeRect(x, 0, colW, H * scale); ctx.setLineDash([]);
+        }
+    }
+
+    // 6. 绘制右侧【墙厚方向横剖立面图】 (真实物理厚薄比例)
+    function drawThicknessSectionView(ctx, boxX, boxY, boxW, boxH, params, simRes, scaleY, startCanvasY) {
+        const { H, T } = params;
+        const { scheme, allCoursesMeta } = simRes;
+
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(boxX, 8, boxW - 10, boxH - 16);
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.strokeRect(boxX, 8, boxW - 10, boxH - 16);
+        ctx.fillStyle = '#0f172a'; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(`② 墙厚横剖立面图 (完成总厚 T=${T}mm，真实厚薄比例)`, boxX + (boxW - 10) / 2, 28);
+
+        const hScale = Math.min(0.42, Math.max(0.18, scaleY * 1.35));
+        const centerSecX = boxX + (boxW - 95) / 2;
+
+        ctx.save();
+        ctx.translate(centerSecX, startCanvasY);
+        ctx.scale(1, -1);
+
+        const totalFinishW = T * hScale;
+        const finishLeft = -totalFinishW / 2;
+        const finishRight = totalFinishW / 2;
+
+        ctx.fillStyle = '#ddd6fe';
+        ctx.fillRect(finishLeft, 0, totalFinishW, H * scaleY);
+        ctx.strokeStyle = '#6d28d9';
+        ctx.lineWidth = 1.1;
+        ctx.setLineDash([4, 2]);
+        ctx.strokeRect(finishLeft, 0, totalFinishW, H * scaleY);
+        ctx.setLineDash([]);
+
+        allCoursesMeta.forEach((c) => {
+            const yPx = c.y * scaleY, hPx = c.h * scaleY;
+            if (c.zone === 'BOTTOM_RED') {
+                const bareW = scheme.redBareMM * hScale, bLeft = -bareW / 2;
+                ctx.fillStyle = '#fca5a5'; ctx.strokeStyle = '#b91c1c'; ctx.lineWidth = 0.9;
+                if (scheme.hasBackingRed) {
+                    const w1 = 115 * hScale, wGap = scheme.innerJointMM * hScale, w2 = 53 * hScale;
+                    ctx.fillRect(bLeft, yPx, w1, hPx); ctx.strokeRect(bLeft, yPx, w1, hPx);
+                    ctx.fillStyle = '#fde68a'; ctx.fillRect(bLeft + w1, yPx, wGap, hPx);
+                    ctx.fillStyle = '#f87171'; ctx.fillRect(bLeft + w1 + wGap, yPx, w2, hPx); ctx.strokeRect(bLeft + w1 + wGap, yPx, w2, hPx);
+                } else {
+                    ctx.fillRect(bLeft, yPx, bareW, hPx); ctx.strokeRect(bLeft, yPx, bareW, hPx);
+                }
+            } else if (c.zone === 'MID_LIGHT' || c.zone === 'TOP_LIGHT') {
+                const bareW = scheme.lightBareMM * hScale, bLeft = -bareW / 2, isTopRow = (c.zone === 'TOP_LIGHT');
+                if (scheme.hasBackingRed) {
+                    const wLight = 100 * hScale, wGap = scheme.innerJointMM * hScale, wRed = 53 * hScale;
+                    ctx.fillStyle = isTopRow ? '#bae6fd' : '#7dd3fc'; ctx.strokeStyle = '#0369a1';
+                    ctx.fillRect(bLeft, yPx, wLight, hPx); ctx.strokeRect(bLeft, yPx, wLight, hPx);
+                    ctx.fillStyle = '#fde68a'; ctx.fillRect(bLeft + wLight, yPx, wGap, hPx);
+                    ctx.fillStyle = '#fca5a5'; ctx.strokeStyle = '#b91c1c';
+                    ctx.fillRect(bLeft + wLight + wGap, yPx, wRed, hPx); ctx.strokeRect(bLeft + wLight + wGap, yPx, wRed, hPx);
+                } else {
+                    ctx.fillStyle = isTopRow ? '#bae6fd' : '#7dd3fc'; ctx.strokeStyle = '#0369a1';
+                    ctx.fillRect(bLeft, yPx, bareW, hPx); ctx.strokeRect(bLeft, yPx, bareW, hPx);
+                }
+                if (isTopRow) drawClearLabel(ctx, finishRight + 48, yPx + hPx / 2, `◀ 顶皮高${Math.round(c.h)}`, '#0369a1', 'rgba(224,242,254,0.95)', 9.5, true);
+            } else if (c.zone === 'OBLIQUE') {
+                const bareW = scheme.redBareMM * hScale, bLeft = -bareW / 2;
+                ctx.fillStyle = '#fca5a5'; ctx.strokeStyle = '#991b1b';
+                ctx.fillRect(bLeft, yPx, bareW, hPx); ctx.strokeRect(bLeft, yPx, bareW, hPx);
+                drawClearLabel(ctx, finishRight + 48, yPx + hPx / 2, `◀ 斜砌${Math.round(c.h)}`, '#b91c1c', 'rgba(254,226,226,0.95)', 9.5, true);
+            }
+        });
+
+        drawClearLabel(ctx, finishRight + 48, 155 * scaleY, `◀ 底砖310`, '#991b1b', 'rgba(254,226,226,0.9)', 9.5, true);
+        drawCADDimLine(ctx, Math.max(finishRight + 106, 118), 0, Math.max(finishRight + 106, 118), H * scaleY, `总高 H=${H}mm`, '#0f172a', 10);
+
+        const pEach = scheme.plasterSideMM.toFixed(1);
+        drawClearLabel(ctx, finishLeft - 48, (H * 0.5) * scaleY, `裸厚${scheme.lightBareMM} ▶`, '#0f172a', 'rgba(255,255,255,0.92)', 9.5, true);
+        drawClearLabel(ctx, 0, -16, `抹灰${pEach} + 裸厚${scheme.lightBareMM} + 抹灰${pEach}`, '#6d28d9', null, 10, true);
+        drawCADDimLine(ctx, Math.min(finishLeft, -55), -38, Math.max(finishRight, 55), -38, `完成面总厚 T=${T}mm`, '#0f172a', 10.5);
+        ctx.restore();
+    }
+
+    function renderDualElevationScene(ctx, logicalW, logicalH, params) {
+        const { L, H, T, leftBound, rightBound, hx, hy, hw, hh } = params;
+        const scheme = getWallScheme(L, T);
+        const frontAreaW = 970, secAreaX = 978, secAreaW = logicalW - secAreaX;
+        const padX = 115, padY = 66;
+        const scale = Math.min((frontAreaW - padX * 2) / L, (logicalH - padY * 2 - 25) / H);
+
+        ctx.clearRect(0, 0, logicalW, logicalH);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, logicalW, logicalH);
+        ctx.fillStyle = '#0f172a'; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(`① 墙体正立面排砖深化图 (最终完成面：总长 L=${L}mm × 总高 H=${H}mm)`, frontAreaW / 2, 26);
+
+        ctx.save();
+        const startCanvasX = (frontAreaW - L * scale) / 2;
+        const startCanvasY = logicalH - padY;
+        ctx.translate(startCanvasX, startCanvasY);
+        ctx.scale(1, -1);
+
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, 0, L * scale, H * scale);
+        const res = simulateWall(L, H, T, leftBound, rightBound, hx, hy, hw, hh, ctx, scale);
+
+        drawBoundaryColumn(ctx, 'left', leftBound, L, H, scale, scheme, res.deltaL);
+        drawBoundaryColumn(ctx, 'right', rightBound, L, H, scale, scheme, res.deltaR);
+
+        if (hw > 0 && hh > 0 && hx + hw <= L) {
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(hx * scale, hy * scale, hw * scale, hh * scale);
+            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.2; ctx.strokeRect(hx * scale, hy * scale, hw * scale, hh * scale);
+            drawClearLabel(ctx, (hx + hw / 2) * scale, (hy + hh / 2) * scale + 14, `门窗洞口完成面 (${hw}×${hh}mm)`, '#0f172a', null, 12, true);
+            drawClearLabel(ctx, (hx + hw / 2) * scale, (hy + hh / 2) * scale - 10, `◀ 两侧各含${res.jambPlasterL}/${res.jambPlasterR}mm抹灰 | 底砖上满400高嵌红砖 ▶`, '#dc2626', null, 10, true);
+        }
+
+        const leftTag = (leftBound === 'free') ? `左抹灰${res.deltaL}` : `左灰缝${res.deltaL}`;
+        const rightTag = (rightBound === 'free') ? `右抹灰${res.deltaR}` : `右灰缝${res.deltaR}`;
+        drawCADDimLine(ctx, res.deltaL * scale, -18, (L - res.deltaR) * scale, -18, `${leftTag}mm | 砌体净长 ${res.bareWallL}mm | ${rightTag}mm`, '#0369a1', 10.5);
+        drawCADDimLine(ctx, 0, -42, L * scale, -42, `最终完成面总长 L = ${L} mm (${res.topOpt.topNote})`, '#0f172a', 11.5);
+        drawCADDimLine(ctx, L * scale + 72, 0, L * scale + 72, H * scale, `完成面总高 H = ${H} mm`, '#0f172a', 11);
+        ctx.restore();
+
+        drawThicknessSectionView(ctx, secAreaX, 0, secAreaW, logicalH, params, res, scale, startCanvasY);
+        return res;
+    }
+
+    function groupCutLengths(cutsArr) {
+        let map = {};
+        for (let i = 0; i < cutsArr.length; i++) {
+            let len = Math.round(cutsArr[i] / 10) * 10;
+            map[len] = (map[len] || 0) + 1;
+        }
+        return Object.keys(map).map(k => ({ len: parseInt(k), count: map[k] })).sort((a, b) => b.len - a.len);
+    }
+
+    function optimizeCuts(cuts, stdLen) {
+        if (!cuts || cuts.length === 0) return 0;
+        let arr = cuts.map(c => Math.min(stdLen, Math.round(c / 10) * 10)).sort((a, b) => b - a);
+        let bins = [];
+        for (let i = 0; i < arr.length; i++) {
+            let need = arr[i] + SAW_LOSS;
+            let placed = false;
+            for (let j = 0; j < bins.length; j++) {
+                if (bins[j] >= need) { bins[j] -= need; placed = true; break; }
+            }
+            if (!placed) bins.push(Math.max(0, stdLen - need));
+        }
+        return bins.length;
+    }
+
+    /**
+     * 7. 全屋跨墙段碎砖余料配对与去向追踪引擎 (Requirement 2)
+     * 不仅计算需要多少块整砖，还精确追踪每一块整砖切下的余料具体用在了哪几面墙上，生成可执行的施工调配指令！
+     */
+    function buildGlobalCrossWallReusePlan(wallCutsItems, stdLen = 600) {
+        // wallCutsItems: [{ wallId, wallName, len }]
+        if (!wallCutsItems || wallCutsItems.length === 0) {
+            return { totalBins: 0, crossWallInstructions: [], perWallReuseNotes: {} };
+        }
+        let sorted = [...wallCutsItems].map(item => ({
+            ...item,
+            len: Math.min(stdLen, Math.round(item.len / 10) * 10)
+        })).sort((a, b) => b.len - a.len);
+
+        let bins = []; // [{ rem, pieces: [{ wallId, wallName, len }] }]
+        for (let i = 0; i < sorted.length; i++) {
+            let item = sorted[i];
+            let placed = false;
+            // 优先匹配能与不同墙段互补或剩余空间最紧凑的整砖
+            let bestBinIdx = -1;
+            let minRemAfter = Infinity;
+            for (let j = 0; j < bins.length; j++) {
+                if (bins[j].rem >= item.len) {
+                    let remAfter = bins[j].rem - item.len;
+                    if (remAfter < minRemAfter) {
+                        minRemAfter = remAfter;
+                        bestBinIdx = j;
+                    }
+                }
+            }
+            if (bestBinIdx !== -1) {
+                bins[bestBinIdx].rem -= item.len;
+                bins[bestBinIdx].pieces.push(item);
+                placed = true;
+            }
+            if (!placed) {
+                bins.push({ rem: Math.max(0, stdLen - item.len), pieces: [item] });
+            }
+        }
+
+        // 归类合并相同的拼切模式，生成直观的跨墙调配说明
+        let patternMap = {};
+        let perWallMap = {};
+
+        bins.forEach(bin => {
+            if (bin.pieces.length >= 2) {
+                const sig = bin.pieces.map(p => `${p.wallId}(${p.len}mm)`).join(" + ") + ` [余${bin.rem}mm]`;
+                const involvesMultiWalls = new Set(bin.pieces.map(p => p.wallId)).size > 1;
+                if (!patternMap[sig]) {
+                    patternMap[sig] = { count: 0, pieces: bin.pieces, rem: bin.rem, involvesMultiWalls };
+                }
+                patternMap[sig].count++;
+
+                // 记录到各相关墙段的交底说明中
+                const desc = `1块${stdLen}整砖切分 → ` + bin.pieces.map(p => `<b>${p.wallId}</b>用<b>${p.len}mm</b>`).join(" + ") + (bin.rem > 0 ? `(余${bin.rem}mm)` : `(100%零废料)`);
+                bin.pieces.forEach(p => {
+                    if (!perWallMap[p.wallId]) perWallMap[p.wallId] = {};
+                    perWallMap[p.wallId][desc] = (perWallMap[p.wallId][desc] || 0) + 1;
+                });
+            }
+        });
+
+        let instructions = Object.values(patternMap)
+            .sort((a, b) => (b.involvesMultiWalls - a.involvesMultiWalls) || (b.count - a.count))
+            .map(pat => {
+                const tag = pat.involvesMultiWalls ? `<span style="color:#dc2626;font-weight:bold;">[跨墙互用]</span>` : `<span style="color:#0284c7;">[本墙内对拼]</span>`;
+                const detail = pat.pieces.map(p => `<b>${p.wallId}(${p.wallName})</b> 切 <b>${p.len}mm</b>`).join(" ＋ 余料供 ");
+                return `${tag} <b>${pat.count} 块</b> ${stdLen}mm整砖：每块切分供 ${detail}（尾料余 ${pat.rem}mm）`;
+            });
+
+        let perWallReuseNotes = {};
+        Object.keys(perWallMap).forEach(wId => {
+            perWallReuseNotes[wId] = Object.entries(perWallMap[wId])
+                .map(([desc, cnt]) => `${desc} × <b>${cnt}组</b>`)
+                .join("；");
+        });
+
+        return {
+            totalBins: bins.length,
+            crossWallInstructions: instructions,
+            perWallReuseNotes: perWallReuseNotes
+        };
+    }
+
+    function previewWall(btn) {
+        const tr = btn.closest('tr');
+        if (!tr) return;
+        const wallId = tr.querySelector('.row-label')?.innerText || 'W1';
+        const wallName = tr.querySelector('.input-name')?.value || wallId;
+        const L = parseFloat(tr.querySelector('.input-l')?.value) || 0;
+        const H = parseFloat(tr.querySelector('.input-h')?.value) || 0;
+        const T = parseFloat(tr.querySelector('.input-t')?.value) || 0;
+        const leftBound = tr.querySelector('.input-left-bound')?.value || 'wall';
+        const rightBound = tr.querySelector('.input-right-bound')?.value || 'free';
+        const hx = parseFloat(tr.querySelector('.input-hx')?.value) || 0;
+        const hy = parseFloat(tr.querySelector('.input-hy')?.value) || 0;
+        const hw = parseFloat(tr.querySelector('.input-hw')?.value) || 0;
+        const hh = parseFloat(tr.querySelector('.input-hh')?.value) || 0;
+
+        if (L < 100 || H < 200 || T < 50) {
+            alert("请输入合理的墙体完成面尺寸（墙长≥100mm，墙高≥200mm，墙厚≥50mm）！");
+            return;
+        }
+
+        // 先执行一次全局计算以刷新跨墙余料调配数据
+        calculateGlobal(false);
+
+        const canvas = document.getElementById('wallCanvas');
+        if (!canvas) return;
+        const dpr = Math.max(window.devicePixelRatio || 1, 2.5);
+        canvas.width = LOGICAL_W * dpr;
+        canvas.height = LOGICAL_H * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        const params = { wallId, wallName, L, H, T, leftBound, rightBound, hx, hy, hw, hh };
+        const res = renderDualElevationScene(ctx, LOGICAL_W, LOGICAL_H, params);
+        ctx.restore();
+
+        const singleRedOptBins = optimizeCuts(res.redCuts, 240);
+        const singleLightOptBins = optimizeCuts(res.lightCuts, 600);
+        const singleRedNet = Math.ceil(res.redWholeCount + singleRedOptBins);
+        const singleLightNet = Math.ceil(res.lightWholeCount + singleLightOptBins);
+        const singleRedFinal = Math.ceil(singleRedNet * SAFE_LOSS);
+        const singleLightFinal = Math.ceil(singleLightNet * SAFE_LOSS);
+
+        const lightCutGroups = groupCutLengths(res.lightCuts);
+        const redCutGroups = groupCutLengths(res.redCuts);
+        const wallReuseNote = globalReuseWallNotes[wallId] || "无跨墙拼切（全整砖或单块独立裁切）";
+
+        let topH = res.topOpt.topLightBrickH;
+        let lightTagsHTML = `<span class="cut-tag" style="background:#e0f2fe;border-color:#0284c7;"><b>整砖 600×200mm</b> × ${Math.ceil(res.lightWholeCount)} 块</span>`;
+        if (res.topRowLightBricks.length > 0) {
+            lightTagsHTML += `<span class="cut-tag" style="background:#bae6fd;border-color:#0369a1;"><b>最上一皮(高${topH}mm)</b>：共 ${res.topRowLightBricks.length} 块 ${res.topOpt.reuseFactor < 1 ? '(一砖对剖两用)' : ''}</span>`;
+        }
+        if (lightCutGroups.length > 0) {
+            lightCutGroups.forEach(g => { lightTagsHTML += `<span class="cut-tag">10mm模数切 <b>${g.len}mm</b> × ${g.count} 块</span>`; });
+        } else {
+            lightTagsHTML += `<span class="cut-tag" style="color:#059669;"><b>全整砖排布(0切砖)</b></span>`;
+        }
+        lightTagsHTML += `<div style="width:100%; margin-top:4px; padding:4px 6px; background:#eff6ff; border-radius:4px; color:#1e3a8a; font-size:11px;">🔗 <b>余料调配去向：</b>${wallReuseNote}</div>`;
+        setHTML('modalLightCutList', lightTagsHTML);
+
+        let redTagsHTML = `<span class="cut-tag" style="background:#fee2e2;border-color:#e11d48;"><b>整砖 240mm</b> × ${Math.ceil(res.redWholeCount)} 块 (含${res.pierModeSummary}、斜砌${res.obliqueBrickCount}块)</span>`;
+        redCutGroups.forEach(g => { redTagsHTML += `<span class="cut-tag">10mm模数切 <b>${g.len}mm</b> × ${g.count} 块</span>`; });
+        setHTML('modalRedCutList', redTagsHTML);
+
+        setHTML('modalRebarDetail', `
+            • <b>长度10~25mm调节</b>：<b>${res.lenOptSummary}</b><br>
+            • <b>墙厚10~25mm调节</b>：完成厚 <b>${T}mm</b> = 裸厚 <b>${res.scheme.lightBareMM}mm</b> + 双面抹灰各 <b>${res.scheme.plasterSideMM.toFixed(1)}mm</b><br>
+            • <b>植筋算量与交底</b>：共 <b>${res.totalRebarCount} 根(孔)</b> / Φ6总长 <b>${res.totalRebarLen_m.toFixed(1)}m</b>（靠原墙@400高钻孔深100mm，三吹两刷清孔注胶植入2Φ6，入新墙700mm）。
+        `);
+
+        currentPreviewData = { ...params, res, singleRedNet, singleLightNet, singleRedFinal, singleLightFinal, lightCutGroups, redCutGroups, wallReuseNote };
+
+        setText('modalWallTitle', `${wallId} ${wallName} (最终完成面：${L}×${H}×${T}mm)`);
+        setText('modalScheme', res.scheme.sectionDesc);
+        setText('modalPlasterSub', `完成厚${T} = 裸${res.scheme.lightBareMM} + 双面抹灰各${res.scheme.plasterSideMM.toFixed(1)}mm`);
+        setText('modalLenOpt', `砌体净长 ${res.bareWallL} mm`);
+        setText('modalLenSub', res.lenOptSummary);
+        setText('modalRedLight', `红 ${singleRedFinal} / 轻 ${singleLightFinal} 块`);
+        setText('modalRedLightSub', `净排: 红${singleRedNet} / 轻${singleLightNet}`);
+        setText('modalRebar', `${res.totalRebarCount} 根(孔)`);
+        setText('modalRebarSub', `Φ6钢筋: ${res.totalRebarLen_m.toFixed(1)}m`);
+        setHTML('modalDirDesc', `${res.pierModeSummary}<br><span style="color:#0369a1;">${res.topOpt.topNote}</span>`);
+
+        const modal = document.getElementById('drawModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    // 单墙打印
+    function printHandoverSheet() {
+        if (!currentPreviewData) return;
+        const d = currentPreviewData;
+        const projName = document.getElementById('projectName')?.value || "二次结构砌筑工程";
+        const today = new Date().toISOString().slice(0, 10);
+
+        setText('prtTitle', `${projName} - 二次结构砌筑排砖技术交底暨下料单`);
+        setText('prtWallInfo', `墙段部位：${d.wallId} (${d.wallName})`);
+        setText('prtSchemeInfo', `厚度构造：${d.res.scheme.name}`);
+        setText('prtDate', `交底日期：${today}`);
+
+        const canvas = document.getElementById('wallCanvas');
+        const imgEl = document.getElementById('prtCanvasImg');
+        if (canvas && imgEl) imgEl.src = canvas.toDataURL("image/png");
+
+        setText('prtDim', `长${d.L}×高${d.H}×厚${d.T} mm`);
+        setText('prtHole', (d.hw > 0 && d.hh > 0) ? `${d.hw}×${d.hh} (距左${d.hx}/离地${d.hy})` : "无内部洞口");
+        setText('prtTopOpt', `${d.res.lenOptSummary} | 双面抹灰各${d.res.scheme.plasterSideMM.toFixed(1)}mm | ${d.res.topOpt.topNote}`);
+        setText('prtRedTotal', `${d.singleRedFinal} 块 (净排${d.singleRedNet})`);
+        setText('prtLightTotal', `${d.singleLightFinal} 块 (净排${d.singleLightNet})`);
+        setText('prtRebarTotal', `${d.res.totalRebarCount} 根(孔) / 共 ${d.res.totalRebarLen_m.toFixed(1)}m`);
+        setText('prtMortarPlaster', `砌:${(d.res.netMortarVol * SAFE_LOSS).toFixed(2)} / 抹:${(d.res.netPlasterVol * SAFE_LOSS).toFixed(2)}m³`);
+
+        let lText = `整砖(600×200)：<b>${Math.ceil(d.res.lightWholeCount)} 块</b>；最上一皮(高<b>${d.res.topOpt.topLightBrickH}mm</b>)：<b>${d.res.topRowLightBricks.length} 块</b>；`;
+        lText += d.lightCutGroups.length > 0 ? (`10mm模数裁切块：` + d.lightCutGroups.map(g => `<b>${g.len}mm</b>×${g.count}块`).join("、")) : `全整砖排布(0裁切)`;
+        lText += `<br><b>跨墙余料互用指令</b>：${d.wallReuseNote}`;
+        setHTML('prtLightCutsText', lText);
+
+        let rText = `整砖(240mm)：<b>${Math.ceil(d.res.redWholeCount)} 块</b> (含${d.res.pierModeSummary}、斜砌${d.res.obliqueBrickCount}块)；`;
+        if (d.redCutGroups.length > 0) rText += `10mm模数裁切块：` + d.redCutGroups.map(g => `<b>${g.len}mm</b>×${g.count}块`).join("、") + `；`;
+        rText += `<br><b>化学植筋下料</b>：Φ6钢筋 <b>800mm × ${d.res.totalRebarCount} 根</b> (入旧墙100mm + 入新墙700mm)。`;
+        setHTML('prtRedCutsText', rText);
+
+        setText('prtJointNote', `${d.res.deltaL}~${d.res.deltaR}mm`);
+        setText('prtPlasterNote', `单侧${d.res.scheme.plasterSideMM.toFixed(1)}mm`);
+        setText('prtFixModeNote', d.res.pierModeSummary);
+        setText('prtObliqueHNote', `${d.res.topOpt.topRedH}mm（最上一皮定高${d.res.topOpt.topLightBrickH}mm）`);
+
+        document.body.classList.remove('print-mode-batch');
+        document.body.classList.add('print-mode-single');
+        setTimeout(() => { window.print(); }, 150);
+    }
+
+    /**
+     * 8. 一键导出/打印【全套工程交底册】
+     * - 仅在第 1 页（全局总览封面页）底部显示项目经理与班组长签字栏，第 2~N 页不再重复显示签字栏！
+     * - 若开启“全屋整体统筹排砖”，在第 1 页及各墙段页明确输出《跨墙碎砖余料调配去向说明》
+     */
+    function printAllWallsBooklet() {
+        const tbody = document.getElementById('wallBody');
+        const batchArea = document.getElementById('printBatchArea');
+        if (!tbody || !batchArea) return;
+
+        const projName = document.getElementById('projectName')?.value || "二次结构砌筑深化工程";
+        const isGlobalReuse = document.getElementById('enableGlobalReuse')?.checked ?? true;
+        const today = new Date().toISOString().slice(0, 10);
+
+        let wallItems = [];
+        let globalRedWhole = 0, globalLightWhole = 0;
+        let globalRedCuts = [], globalLightCutObjects = [];
+        let sumSingleRedOptBins = 0, sumSingleLightOptBins = 0;
+        let globalMortarNet = 0, globalPlasterNet = 0;
+        let globalRebarCount = 0, globalRebarLen = 0;
+
+        const offCanvas = document.createElement('canvas');
+        const dpr = 2.0;
+        offCanvas.width = LOGICAL_W * dpr;
+        offCanvas.height = LOGICAL_H * dpr;
+        const offCtx = offCanvas.getContext('2d');
+
+        const rows = tbody.children;
+        for (let i = 0; i < rows.length; i++) {
+            const wallId = rows[i].querySelector('.row-label')?.innerText || `W${i+1}`;
+            const wallName = rows[i].querySelector('.input-name')?.value || wallId;
+            const L = parseFloat(rows[i].querySelector('.input-l')?.value) || 0;
+            const H = parseFloat(rows[i].querySelector('.input-h')?.value) || 0;
+            const T = parseFloat(rows[i].querySelector('.input-t')?.value) || 0;
+            if (L < 100 || H < 200 || T < 50) continue;
+
+            const leftBound = rows[i].querySelector('.input-left-bound')?.value || 'wall';
+            const rightBound = rows[i].querySelector('.input-right-bound')?.value || 'free';
+            const hx = parseFloat(rows[i].querySelector('.input-hx')?.value) || 0;
+            const hy = parseFloat(rows[i].querySelector('.input-hy')?.value) || 0;
+            const hw = parseFloat(rows[i].querySelector('.input-hw')?.value) || 0;
+            const hh = parseFloat(rows[i].querySelector('.input-hh')?.value) || 0;
+
+            offCtx.save();
+            offCtx.scale(dpr, dpr);
+            const params = { wallId, wallName, L, H, T, leftBound, rightBound, hx, hy, hw, hh };
+            const res = renderDualElevationScene(offCtx, LOGICAL_W, LOGICAL_H, params);
+            offCtx.restore();
+
+            const imgDataUrl = offCanvas.toDataURL("image/png");
+
+            globalRedWhole += res.redWholeCount;
+            globalLightWhole += res.lightWholeCount;
+            globalRedCuts.push(...res.redCuts);
+            res.lightCuts.forEach(cLen => globalLightCutObjects.push({ wallId, wallName, len: cLen }));
+
+            globalMortarNet += res.netMortarVol;
+            globalPlasterNet += res.netPlasterVol;
+            globalRebarCount += res.totalRebarCount;
+            globalRebarLen += res.totalRebarLen_m;
+
+            const segRedOptBins = optimizeCuts(res.redCuts, 240);
+            const segLightOptBins = optimizeCuts(res.lightCuts, 600);
+            sumSingleRedOptBins += segRedOptBins;
+            sumSingleLightOptBins += segLightOptBins;
+
+            const segRedNet = Math.ceil(res.redWholeCount + segRedOptBins);
+            const segLightNet = Math.ceil(res.lightWholeCount + segLightOptBins);
+            const segRedFinal = Math.ceil(segRedNet * SAFE_LOSS);
+            const segLightFinal = Math.ceil(segLightNet * SAFE_LOSS);
+
+            wallItems.push({
+                ...params, res, imgDataUrl,
+                segRedNet, segLightNet, segRedFinal, segLightFinal,
+                lightCutGroups: groupCutLengths(res.lightCuts),
+                redCutGroups: groupCutLengths(res.redCuts)
+            });
+        }
+
+        if (wallItems.length === 0) {
+            alert("请至少输入一段有效尺寸的墙体！");
+            return;
+        }
+
+        const reusePlan = buildGlobalCrossWallReusePlan(globalLightCutObjects, 600);
+        const optRedBins = isGlobalReuse ? optimizeCuts(globalRedCuts, 240) : sumSingleRedOptBins;
+        const optLightBins = isGlobalReuse ? reusePlan.totalBins : sumSingleLightOptBins;
+
+        const netRedTotal = Math.ceil(globalRedWhole + optRedBins);
+        const finalRedTotal = Math.ceil(netRedTotal * SAFE_LOSS);
+        const netLightTotal = Math.ceil(globalLightWhole + optLightBins);
+        const finalLightTotal = Math.ceil(netLightTotal * SAFE_LOSS);
+        const savedLightBricks = Math.max(0, globalLightCutObjects.length - optLightBins);
+        const glueTubes = Math.ceil(globalRebarCount / 45);
+
+        let overviewRowsHTML = wallItems.map(w => `
+            <tr>
+                <td class="center"><b>${w.wallId}</b></td>
+                <td class="center">${w.wallName}</td>
+                <td class="center"><b>${w.L}×${w.H}×${w.T}</b></td>
+                <td class="center">${w.hw > 0 ? `${w.hw}×${w.hh}` : '无'}</td>
+                <td>${w.res.lenOptSummary} | ${w.res.pierModeSummary}</td>
+                <td>${w.res.scheme.name} | ${w.res.topOpt.topNote}</td>
+                <td class="center"><b>${w.segRedFinal}块</b> (净${w.segRedNet})</td>
+                <td class="center"><b>${w.segLightFinal}块</b> (净${w.segLightNet})</td>
+                <td class="center"><b>${w.res.totalRebarCount}根</b> (${w.res.totalRebarLen_m.toFixed(1)}m)</td>
+                <td class="center">砌${(w.res.netMortarVol * SAFE_LOSS).toFixed(2)}/抹${(w.res.netPlasterVol * SAFE_LOSS).toFixed(2)}</td>
+            </tr>
+        `).join('');
+
+        let reuseSectionHTML = "";
+        if (isGlobalReuse && reusePlan.crossWallInstructions.length > 0) {
+            reuseSectionHTML = `
+                <div style="border:1px solid #000; padding:4px 7px; font-size:9.5px; line-height:1.4; margin-bottom:5px; background:#f8fafc;">
+                    <b>🔗 全屋整体统筹排砖 — 跨墙段碎砖余料调配指令（共将 ${globalLightCutObjects.length} 处切砖拼入 ${optLightBins} 块整砖，省下 ${savedLightBricks} 块整轻质砖）：</b><br>
+                    ${reusePlan.crossWallInstructions.join(" ； ")}
+                </div>
+            `;
+        }
+
+        // 第 1 页：总览封面页 (包含唯一的一处交底人与签收人签字栏)
+        let html = `
+            <div class="print-page">
+                <div class="print-header">
+                    <h2>${projName} — 二次结构砌筑总览暨施工技术交底册 (第 1 页 / 共 ${wallItems.length + 1} 页)</h2>
+                    <div class="print-meta">
+                        <span>工程部位：全标段砌筑墙体汇总 (共 ${wallItems.length} 段墙体)</span>
+                        <span>排砖模式：${isGlobalReuse ? '已开启全屋整体统筹排砖(跨墙余料互用)' : '各墙段独立排砖'} | ≤600短墙整砖直铺</span>
+                        <span>编制日期：${today}</span>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; font-weight:bold; margin-bottom:3px;">一、全局统筹采购总清单 (${isGlobalReuse ? '跨墙段10mm模数余料互补拼凑后' : '单墙汇总'} + 5%安全损耗预留)</div>
+                <div class="overview-kpi-grid">
+                    <div class="overview-kpi">
+                        <div class="k-title">1. 标准红砖 (240×115×53)</div>
+                        <div class="k-val">${finalRedTotal} 块</div>
+                        <div class="k-sub">统筹净量:${netRedTotal}块 (整${Math.ceil(globalRedWhole)}+切耗${optRedBins}) | 5%损耗:${finalRedTotal - netRedTotal}块</div>
+                    </div>
+                    <div class="overview-kpi">
+                        <div class="k-title">2. 轻质砖 (600×200×100)</div>
+                        <div class="k-val">${finalLightTotal} 块</div>
+                        <div class="k-sub">统筹净量:${netLightTotal}块 (余料互补省下${savedLightBricks}块) | 5%损耗:${finalLightTotal - netLightTotal}块</div>
+                    </div>
+                    <div class="overview-kpi">
+                        <div class="k-title">3. 化学植筋拉结筋 (Φ6钢筋)</div>
+                        <div class="k-val">${globalRebarLen.toFixed(1)} 米</div>
+                        <div class="k-sub">总钻孔植筋: <b>${globalRebarCount} 根(孔)</b> (单根0.8m) | 植筋胶约 <b>${glueTubes} 支</b></div>
+                    </div>
+                    <div class="overview-kpi">
+                        <div class="k-title">4. 砌筑砂浆总用量 (含5%损)</div>
+                        <div class="k-val">${(globalMortarNet * SAFE_LOSS).toFixed(3)} m³</div>
+                        <div class="k-sub">含水平/竖向10mm灰缝及新旧墙交接10~25mm塞缝砂浆</div>
+                    </div>
+                    <div class="overview-kpi">
+                        <div class="k-title">5. 抹灰砂浆总用量 (含5%损)</div>
+                        <div class="k-val">${(globalPlasterNet * SAFE_LOSS).toFixed(3)} m³</div>
+                        <div class="k-sub">含前后裸露大面、自由端侧面及门窗洞口内侧10~25mm抹灰</div>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; font-weight:bold; margin-bottom:3px;">二、各墙段完成面尺寸、灰缝/抹灰调节方案与单墙领料汇总表</div>
+                <table class="print-table">
+                    <thead>
+                        <tr>
+                            <th width="4%">编号</th>
+                            <th width="10%">部位名称</th>
+                            <th width="10%">完成面尺寸<br>(长×高×厚mm)</th>
+                            <th width="7%">洞口尺寸<br>(宽×高mm)</th>
+                            <th width="22%">长度方向10~25mm调节与自由端砌法</th>
+                            <th width="21%">厚度方向10~25mm调节与顶皮定高</th>
+                            <th width="7%">红砖(含损)</th>
+                            <th width="7%">轻砖(含损)</th>
+                            <th width="6%">Φ6植筋</th>
+                            <th width="6%">砂浆(m³)</th>
+                        </tr>
+                    </thead>
+                    <tbody>${overviewRowsHTML}</tbody>
+                </table>
+
+                ${reuseSectionHTML}
+
+                <div style="font-size:11px; font-weight:bold; margin-bottom:2px;">三、二次结构砌筑、化学植筋与抹灰工程核心施工技术交底细则（全班组严格执行）</div>
+                <div class="overview-spec-grid">
+                    <div>
+                        <b>1. 基层防潮打底与 ≤600mm 短墙整砖直铺规范：</b><br>
+                        • 所有隔墙底部必须满砌 <b>5皮标准红砖（总高310mm）</b>防潮打底；净长 <b>≤600mm</b> 的短墙或门垛直接用单块轻质砖整铺（如550mm直接切一块550mm满铺），严禁无意义地切成两半加竖缝（除非跨墙调配表指定使用两块余料拼砌）。<br>
+                        <b>2. 化学植筋（拉结筋）五步标准工法：</b><br>
+                        • 靠原建筑混凝土墙/柱侧，沿高每隔 <b>400mm（每2皮轻质砖）</b>植入2Φ6拉结筋（薄墙1Φ6），单根下料800mm（锚固入旧墙100mm+入新墙700mm）。工序：<b>弹线定位→钻孔(Φ8~10深100mm)→“三吹两刷”清孔→注胶2/3孔深→旋入钢筋固化</b>。<br>
+                        <b>3. 自由端与门窗洞口红砖固定墩（底砖上满400mm起嵌）：</b><br>
+                        • 旧墙交接处不砌红砖；自由端及门窗洞边从底部310mm红砖往上<b>先砌满2皮轻质砖（满400mm高）后</b>，在第3皮位置才第一次嵌砌3皮红砖固定墩（按图优选<b>丁砌115或顺砌240</b>），往上每隔400mm高循环嵌砌。
+                    </div>
+                    <div>
+                        <b>4. 10mm整十模数集中切砖与全屋跨墙余料互用：</b><br>
+                        • 所有切砖严格按附图10mm整数倍尺寸用无齿锯集中裁切；开启全屋整体排砖时，严格按上方《跨墙段碎砖余料调配指令》将A墙切剩的余料调配至B墙使用。<br>
+                        <b>5. 过梁支座、顶皮定高与180~200mm动态斜砌顶紧：</b><br>
+                        • 门窗洞顶设200mm高C20过梁（两端压墙≥240mm，支座下设红砖固定墩）；最上一皮轻质砖按图定高裁切；墙顶预留 <b>180~200mm</b> 空隙，待下部砌体沉降不少于 <b>7天</b> 后用红砖60°双向斜砌挤紧。<br>
+                        <b>6. 10~25mm灰缝与双面抹灰完成面厚度管控：</b><br>
+                        • 图纸总尺寸均为<b>最终完成面尺寸</b>。新旧墙接缝留置10~25mm砂浆缝；墙体前后裸露大面及自由端面按附图批刮10~25mm抹灰层找平。
+                    </div>
+                </div>
+
+                <div class="print-sign">
+                    <span>交底人（项目经理）签字：______________________</span>
+                    <span>签收人（施工班组长）签字：______________________</span>
+                    <span>交底日期：______年____月____日</span>
+                </div>
+            </div>
+        `;
+
+        // 第 2 ~ N 页：各墙段双立面排砖深化图 (不显示底部签字栏，空间全部留给排砖大图与本墙下料表)
+        wallItems.forEach((d, idx) => {
+            const wReuseNote = reusePlan.perWallReuseNotes[d.wallId] || "本墙均为整砖或独立单块裁切，无跨墙拼块";
+            let lText = `整砖(600×200)：<b>${Math.ceil(d.res.lightWholeCount)} 块</b>；最上一皮(定高<b>${d.res.topOpt.topLightBrickH}mm</b>)：<b>${d.res.topRowLightBricks.length} 块</b> ${d.res.topOpt.reuseFactor < 1 ? '(一砖对剖两用)' : ''}；`;
+            lText += d.lightCutGroups.length > 0 ? (`10mm模数裁切块：` + d.lightCutGroups.map(g => `<b>${g.len}mm</b>×${g.count}块`).join("、")) : `全整砖排布(0裁切)`;
+            if (isGlobalReuse) {
+                lText += `<br><span style="color:#1e3a8a;"><b>🔗 跨墙余料互用说明</b>：${wReuseNote}</span>`;
+            }
+
+            let rText = `整砖(240mm)：<b>${Math.ceil(d.res.redWholeCount)} 块</b> (含${d.res.pierModeSummary}、顶部斜砌${d.res.obliqueBrickCount}块${d.res.backingRedCount > 0 ? `、竖衬${d.res.backingRedCount}块` : ''})；`;
+            if (d.redCutGroups.length > 0) rText += `10mm模数裁切块：` + d.redCutGroups.map(g => `<b>${g.len}mm</b>×${g.count}块`).join("、") + `；`;
+            rText += `<br><b>化学植筋下料</b>：Φ6钢筋 <b>800mm × ${d.res.totalRebarCount} 根</b> (共 ${d.res.totalRebarLen_m.toFixed(1)}m，入旧墙100mm + 入新墙700mm)。`;
+
+            html += `
+                <div class="print-page">
+                    <div class="print-header">
+                        <h2>${projName} — 单墙双立面排砖深化附图暨下料单 【${d.wallId}：${d.wallName}】 (第 ${idx + 2} 页 / 共 ${wallItems.length + 1} 页)</h2>
+                        <div class="print-meta">
+                            <span>墙段编号：${d.wallId} (${d.wallName})</span>
+                            <span>最终完成面尺寸：长 ${d.L} × 高 ${d.H} × 厚 ${d.T} mm</span>
+                            <span>构造骨架：${d.res.scheme.name}</span>
+                        </div>
+                    </div>
+                    <div class="print-body">
+                        <div class="print-img-box">
+                            <div style="font-size:11px; font-weight:bold; margin-bottom:3px; text-align:left;">▼ 左图：墙体正立面排砖图 (含完成面总尺寸) | 右图：墙厚横剖立面图 (真实厚薄比例)</div>
+                            <img src="${d.imgDataUrl}" alt="${d.wallId}双立面排砖图">
+                        </div>
+                        <div>
+                            <table class="print-table">
+                                <thead><tr><th colspan="4">一、【${d.wallId}】完成面参数与材料领用表 (含5%损耗)</th></tr></thead>
+                                <tbody>
+                                    <tr><td width="24%"><b>完成面尺寸</b></td><td width="26%">${d.L}×${d.H}×${d.T} mm</td><td width="24%"><b>门窗洞口</b></td><td width="26%">${d.hw > 0 ? `${d.hw}×${d.hh} (X:${d.hx}/Y:${d.hy})` : '无洞口'}</td></tr>
+                                    <tr><td><b>长/厚调节</b></td><td colspan="3">${d.res.lenOptSummary} | 双面抹灰各${d.res.scheme.plasterSideMM.toFixed(1)}mm | ${d.res.topOpt.topNote}</td></tr>
+                                    <tr><td><b>标准红砖</b></td><td style="font-weight:bold;">${d.segRedFinal} 块 (净排${d.segRedNet})</td><td><b>600轻质砖</b></td><td style="font-weight:bold;">${d.segLightFinal} 块 (净排${d.segLightNet})</td></tr>
+                                    <tr><td><b>植筋(Φ6钢筋)</b></td><td style="font-weight:bold;color:#15803d;">${d.res.totalRebarCount} 根 / ${d.res.totalRebarLen_m.toFixed(1)}m</td><td><b>砌筑/抹灰砂浆</b></td><td>砌:${(d.res.netMortarVol * SAFE_LOSS).toFixed(2)} / 抹:${(d.res.netPlasterVol * SAFE_LOSS).toFixed(2)}m³</td></tr>
+                                </tbody>
+                            </table>
+                            <table class="print-table">
+                                <thead><tr><th>二、【${d.wallId}】现场集中切砖(10mm模数)、跨墙余料调配与植筋表</th></tr></thead>
+                                <tbody>
+                                    <tr><td><b>1. 轻质砖下料与跨墙互用：</b><br><span style="line-height:1.5;">${lText}</span></td></tr>
+                                    <tr><td><b>2. 红砖与植筋下料：</b><br><span style="line-height:1.5;">${rText}</span></td></tr>
+                                </tbody>
+                            </table>
+                            <div class="print-notes">
+                                <b>三、【${d.wallId}】本墙施工控制要点：</b><br>
+                                1. <b>长度方向排砖控制</b>：${d.res.lenOptSummary}；自由端/洞口边从310mm底砖往上<b>先砌满2皮轻质砖(400mm高)后</b>，每隔400mm高按 <b>${d.res.pierModeSummary}</b> 嵌砌3皮红砖固定墩。<br>
+                                2. <b>高度方向排砖控制</b>：底部满砌5皮红砖（310mm高）；最上一皮轻质砖定高 <b>${d.res.topOpt.topLightBrickH}mm</b>；顶部预留 <b>${d.res.topOpt.topRedH}mm</b> 空隙，间隔7天后红砖60°斜砌顶紧。<br>
+                                3. <b>厚度方向抹灰控制</b>：砌体裸厚 <b>${d.res.scheme.lightBareMM}mm</b>，前后两大面各批刮 <b>${d.res.scheme.plasterSideMM.toFixed(1)}mm</b> 抹灰层，确保最终完成面总厚达到 <b>${d.T}mm</b>。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        batchArea.innerHTML = html;
+        document.body.classList.remove('print-mode-single');
+        document.body.classList.add('print-mode-batch');
+        setTimeout(() => { window.print(); }, 250);
+    }
+
+    function calculateGlobal(isManualClick = false) {
+        const tbody = document.getElementById('wallBody');
+        const detailBody = document.getElementById('detailBody');
+        if (!tbody || !detailBody) return;
+        detailBody.innerHTML = "";
+
+        const isGlobalReuse = document.getElementById('enableGlobalReuse')?.checked ?? true;
+
+        let globalRedWhole = 0, globalLightWhole = 0;
+        let globalRedCuts = [], globalLightCutObjects = [];
+        let sumSingleRedOptBins = 0, sumSingleLightOptBins = 0;
+        let globalMortarNet = 0, globalPlasterNet = 0;
+        let globalRebarCount = 0, globalRebarLen = 0;
+
+        const rows = tbody.children;
+        for (let i = 0; i < rows.length; i++) {
+            const wallId = rows[i].querySelector('.row-label')?.innerText || `W${i+1}`;
+            const wallName = rows[i].querySelector('.input-name')?.value || wallId;
+            const L = parseFloat(rows[i].querySelector('.input-l')?.value) || 0;
+            const H = parseFloat(rows[i].querySelector('.input-h')?.value) || 0;
+            const T = parseFloat(rows[i].querySelector('.input-t')?.value) || 0;
+            if (L < 100 || H < 200 || T < 50) continue;
+
+            const leftBound = rows[i].querySelector('.input-left-bound')?.value || 'wall';
+            const rightBound = rows[i].querySelector('.input-right-bound')?.value || 'free';
+            const hx = parseFloat(rows[i].querySelector('.input-hx')?.value) || 0;
+            const hy = parseFloat(rows[i].querySelector('.input-hy')?.value) || 0;
+            const hw = parseFloat(rows[i].querySelector('.input-hw')?.value) || 0;
+            const hh = parseFloat(rows[i].querySelector('.input-hh')?.value) || 0;
+
+            const res = simulateWall(L, H, T, leftBound, rightBound, hx, hy, hw, hh, null, 1);
+
+            globalRedWhole += res.redWholeCount;
+            globalLightWhole += res.lightWholeCount;
+            globalRedCuts.push(...res.redCuts);
+            res.lightCuts.forEach(cLen => globalLightCutObjects.push({ wallId, wallName, len: cLen }));
+
+            globalMortarNet += res.netMortarVol;
+            globalPlasterNet += res.netPlasterVol;
+            globalRebarCount += res.totalRebarCount;
+            globalRebarLen += res.totalRebarLen_m;
+
+            const segRedBins = optimizeCuts(res.redCuts, 240);
+            const segLightBins = optimizeCuts(res.lightCuts, 600);
+            sumSingleRedOptBins += segRedBins;
+            sumSingleLightOptBins += segLightBins;
+
+            const segRedNet = Math.ceil(res.redWholeCount + segRedBins);
+            const segLightNet = Math.ceil(res.lightWholeCount + segLightBins);
+            const segRedFinal = Math.ceil(segRedNet * SAFE_LOSS);
+            const segLightFinal = Math.ceil(segLightNet * SAFE_LOSS);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${wallId}</b></td>
+                <td>${wallName}</td>
+                <td><b>${L}×${H}×${T}</b></td>
+                <td>${res.lenOptSummary}<br><small style="color:#b91c1c;">${res.pierModeSummary}</small></td>
+                <td>${res.scheme.name}<br><small style="color:#0369a1;">${res.topOpt.topNote}</small></td>
+                <td style="color:#e11d48;font-weight:bold;">${segRedFinal} 块 <small style="color:#64748b;font-weight:normal;">(净${segRedNet})</small></td>
+                <td style="color:#0284c7;font-weight:bold;">${segLightFinal} 块 <small style="color:#64748b;font-weight:normal;">(净${segLightNet})</small></td>
+                <td style="color:#16a34a;font-weight:bold;">${res.totalRebarCount} 根 <small style="color:#64748b;font-weight:normal;">(${res.totalRebarLen_m.toFixed(1)}m)</small></td>
+                <td>砌:${(res.netMortarVol * SAFE_LOSS).toFixed(3)} / 抹:${(res.netPlasterVol * SAFE_LOSS).toFixed(3)}</td>
+            `;
+            detailBody.appendChild(tr);
+        }
+
+        // 构建全屋跨墙碎砖余料调配计划
+        const reusePlan = buildGlobalCrossWallReusePlan(globalLightCutObjects, 600);
+        globalReuseWallNotes = reusePlan.perWallReuseNotes;
+
+        const optRedBins = isGlobalReuse ? optimizeCuts(globalRedCuts, 240) : sumSingleRedOptBins;
+        const optLightBins = isGlobalReuse ? reusePlan.totalBins : sumSingleLightOptBins;
+        const savedLightBricks = Math.max(0, globalLightCutObjects.length - optLightBins);
+
+        const reuseBox = document.getElementById('reusePlanBox');
+        if (reuseBox) {
+            reuseBox.style.display = isGlobalReuse ? 'block' : 'none';
+            setText('reuseSummaryTag', `共将 ${globalLightCutObjects.length} 处切块统筹拼入 ${optLightBins} 块整砖，直接省下 ${savedLightBricks} 块整轻质砖`);
+            const listHTML = reusePlan.crossWallInstructions.length > 0
+                ? reusePlan.crossWallInstructions.map(ins => `<div class="reuse-item">${ins}</div>`).join('')
+                : `<div class="reuse-item">当前各墙段均为整砖或独立大块切砖，无需跨墙拼凑。</div>`;
+            setHTML('reusePlanList', listHTML);
+        }
+
+        setText('lightModeSubTitle', isGlobalReuse ? '已开启全屋跨墙统筹' : '各墙段独立核算');
+
+        const netRedTotal = Math.ceil(globalRedWhole + optRedBins);
+        const finalRedTotal = Math.ceil(netRedTotal * SAFE_LOSS);
+        const netLightTotal = Math.ceil(globalLightWhole + optLightBins);
+        const finalLightTotal = Math.ceil(netLightTotal * SAFE_LOSS);
+
+        setHTML('resRedTotal', `${finalRedTotal} <span class="summary-unit">块</span>`);
+        setText('resRedWhole', Math.ceil(globalRedWhole));
+        setText('resRedCuts', globalRedCuts.length);
+        setText('resRedOptBins', optRedBins);
+        setText('resRedNet', netRedTotal);
+        setText('resRedLoss', finalRedTotal - netRedTotal);
+
+        setHTML('resLightTotal', `${finalLightTotal} <span class="summary-unit">块</span>`);
+        setText('resLightWhole', Math.ceil(globalLightWhole));
+        setText('resLightCuts', globalLightCutObjects.length);
+        setText('resLightOptBins', optLightBins);
+        setText('resLightSaved', savedLightBricks);
+        setText('resLightNet', netLightTotal);
+        setText('resLightLoss', finalLightTotal - netLightTotal);
+
+        setHTML('resRebarTotal', `${globalRebarLen.toFixed(1)} <span class="summary-unit">米</span>`);
+        setText('resRebarCount', globalRebarCount);
+        setText('resGlueTubes', Math.ceil(globalRebarCount / 45));
+
+        setHTML('resMortar', `${(globalMortarNet * SAFE_LOSS).toFixed(3)} <span class="summary-unit">m³</span>`);
+        setHTML('resPlaster', `${(globalPlasterNet * SAFE_LOSS).toFixed(3)} <span class="summary-unit">m³</span>`);
+
+        if (isManualClick) {
+            setText('calcStatusBadge', `✅ 已于 ${new Date().toLocaleTimeString()} 完成全屋统筹核算并自动保存！`);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        loadStateFromStorage();
+        calculateGlobal(false);
+    });
+</script>
+</body>
+</html>
